@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Agriculture & Finance | DCS Login</title>
+<style>
+*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:Arial,sans-serif;
+display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,#062b45,#0b6b61)}
+.card{width:min(900px,100%);min-height:500px;background:#fff;border-radius:24px;overflow:hidden;
+display:grid;grid-template-columns:1fr 1fr;box-shadow:0 30px 80px #0005}
+.left{padding:48px;color:#fff;background:linear-gradient(155deg,#0a2e4d,#0e7c7b 75%,#1b865b);
+display:flex;flex-direction:column;justify-content:space-between}
+.logo{font-size:38px}.small{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#bfe8df;font-weight:bold}
+h1{font-size:34px;line-height:1.12;margin:20px 0 12px}.desc{font-size:14px;line-height:1.7;color:#d9eee9}
+.points{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:25px}
+.point{padding:12px;border:1px solid #ffffff22;border-radius:10px;background:#ffffff12;font-size:11px}
+.point b{display:block;margin-bottom:4px}.form{padding:48px;display:flex;flex-direction:column;justify-content:center}
+h2{color:#0a2e4d;margin:0 0 7px}.sub{font-size:12px;color:#647186;margin-bottom:26px}
+label{display:block;font-size:11px;font-weight:bold;color:#647186;text-transform:uppercase;margin-bottom:7px}
+.field{margin-bottom:17px}input{width:100%;padding:13px;border:1px solid #dce3ea;border-radius:10px;
+font-size:14px;outline:none;background:#f8fafc}input:focus{border-color:#0aa398;background:#fff}
+button.login{width:100%;padding:13px;border:0;border-radius:10px;background:#0aa398;color:#fff;font-weight:bold;cursor:pointer}
+button.login:hover{background:#0e7c7b}.error{display:none;padding:10px;margin-bottom:14px;background:#fff0ef;
+border:1px solid #f1c5c0;color:#c0392b;border-radius:8px;font-size:11px}
+.demo{text-align:center;color:#8b96a6;font-size:10px;margin-top:15px}
+@media(max-width:700px){.card{grid-template-columns:1fr;max-width:480px}.left{padding:30px}.points{display:none}.form{padding:34px 30px}h1{font-size:28px}}
+</style></head>
+<body>
+<div class="card">
+<section class="left">
+<div><div class="logo">🌾</div><div class="small">Government Agriculture Analytics</div>
+<h1>DCS Payments<br>Analytics Portal</h1>
+<div class="desc">Secure access to district-wise payments, employee reports, seasonal analysis and financial insights.</div>
+<div class="points"><div class="point"><b>🌾 Agriculture</b>Field payment analytics</div>
+<div class="point"><b>₹ Finance</b>Financial monitoring</div><div class="point"><b>📊 Reports</b>District & employee reports</div>
+<div class="point"><b>🔐 Secure</b>Authenticated dashboard access</div></div></div>
+<div style="font-size:10px;color:#a9d4cb">DCS Payments Analytics · Kharif & Rabi · FY 2025-26</div>
+</section>
+<section class="form"><h2>Welcome Back</h2><div class="sub">Sign in to open the DCS Payments Dashboard</div>
+<div class="error" id="error">Invalid username or password.</div>
+<div class="field"><label>Username</label><input id="u" placeholder="Enter username" autocomplete="username"></div>
+<div class="field"><label>Password</label><input id="p" type="password" placeholder="Enter password" autocomplete="current-password"></div>
+<button class="login" id="login">Sign In to Dashboard</button>
+<div class="demo">Login: <b>DCS</b> / <b>Dcs@2026</b></div>
+</section></div>
+<script>
+const KEY="DCS_PORTAL_LOGIN";
+function login(){
+ if(document.getElementById("u").value.trim()==="DCS" && document.getElementById("p").value==="Dcs@2026"){
+   sessionStorage.setItem(KEY,"1"); location.href="DCS_Dashboardpage.html";
+ }else{document.getElementById("error").style.display="block";}
+}
+document.getElementById("login").onclick=login;
+["u","p"].forEach(id=>document.getElementById(id).addEventListener("keydown",e=>{if(e.key==="Enter")login()}));
+</script></body></html>
