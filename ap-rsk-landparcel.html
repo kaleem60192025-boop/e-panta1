@@ -4,6 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AP RSK Land Parcel Registry — Drilldown Dashboard</title>
+<script>
+/* ===== Protected Dashboard Access =====
+   The dashboard is accessible only after successful login.
+   Direct access without a valid login session returns to the home page.
+*/
+(function () {
+  const AUTH_KEY = 'EPANTA_RSK_DASHBOARD_AUTH';
+  if (sessionStorage.getItem(AUTH_KEY) !== 'true') {
+    window.location.replace('AP_Agriculture_Home_Simple.html');
+    return;
+  }
+})();
+</script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -336,8 +350,26 @@ body{padding-left:var(--sidebar-w); box-sizing:border-box;}
 .report-nav .nav-section{padding:10px 9px 5px}
 .report-main .report-card{margin-bottom:14px}
 </style>
+<style>
+/* Lightweight data-load screen: keeps the existing dashboard UI unchanged while large registry data initializes. */
+#dataLoadOverlay{
+  position:fixed;inset:0;z-index:9999;background:#14251c;color:#eef4ef;
+  display:flex;align-items:center;justify-content:center;flex-direction:column;
+  font-family:var(--sans);transition:opacity .2s ease;
+}
+#dataLoadOverlay .load-box{text-align:center;padding:24px}
+#dataLoadOverlay .load-title{font:600 22px var(--serif);margin-bottom:8px}
+#dataLoadOverlay .load-sub{font:12px var(--mono);color:#9fcbae}
+#dataLoadOverlay .load-spin{
+  width:28px;height:28px;border:3px solid rgba(255,255,255,.18);
+  border-top-color:#9fcbae;border-radius:50%;animation:epantaSpin .75s linear infinite;
+  margin:0 auto 16px;
+}
+@keyframes epantaSpin{to{transform:rotate(360deg)}}
+</style>
 </head>
 <body>
+<div id="dataLoadOverlay"><div class="load-box"><div class="load-spin"></div><div class="load-title">AP RSK Land Parcel Registry</div><div class="load-sub">Loading dashboard data…</div></div></div>
 
 <aside class="report-nav">
   <div class="brand"><small>AP Agriculture</small><strong>RSK Reports</strong></div>
@@ -400,7 +432,7 @@ body{padding-left:var(--sidebar-w); box-sizing:border-box;}
   <div class="masthead-inner">
     <div class="masthead-nav">
       <a href="AP_Agriculture_ExplorerData.html">Agriculture Data Explore</a>
-      <a href="AP_Agriculture_Home_Simple.html" class="logout-link">Logout</a>
+      <a href="AP_Agriculture_Home_Simple.html" class="logout-link" id="dashboardLogout">Logout</a>
     </div>
     <div class="eyebrow"><span class="dot"></span>ANDHRA PRADESH · REVENUE SEVA KENDRAM (RSK) LAND RECORDS</div>
     <h1>RSK Land Parcel Registry</h1>
@@ -812,12 +844,21 @@ function render(){
   firstRender = false;
 }
 
-renderKPIs();
-renderNfRegister();
-renderInsights();
-setupSearch();
-setupMetricToggle();
-render();
+function finishDashboardLoad(){
+  const overlay = document.getElementById('dataLoadOverlay');
+  if(!overlay) return;
+  overlay.style.opacity = '0';
+  setTimeout(()=>overlay.remove(), 220);
+}
+requestAnimationFrame(()=>{
+  renderKPIs();
+  renderNfRegister();
+  renderInsights();
+  setupSearch();
+  setupMetricToggle();
+  render();
+  finishDashboardLoad();
+});
 
 /* ===== Report navigation & management reports ===== */
 (function(){
@@ -917,6 +958,17 @@ render();
 
   }
   buildReports();
+})();
+/* ===== Protected dashboard logout ===== */
+(function(){
+  const logout = document.getElementById('dashboardLogout');
+  if(logout){
+    logout.addEventListener('click', function(){
+      sessionStorage.removeItem('EPANTA_RSK_DASHBOARD_AUTH');
+      sessionStorage.removeItem('RSK_DASHBOARD_AUTH');
+      window.location.replace('AP_Agriculture_Home_Simple.html');
+    });
+  }
 })();
 </script>
 </div>
