@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Codes-Master Login | AP Agriculture</title>
+<style>
+:root{
+  --green-deep:#0e4a34;
+  --green:#146c4c;
+  --green-light:#e8f3ee;
+  --gold:#b7862a;
+  --cream:#f7f5ef;
+  --paper:#ffffff;
+  --text:#1e2a24;
+  --muted:#657268;
+  --border:#e3e2d8;
+  --error:#b3261e;
+  --error-light:#fbeceb;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:"Segoe UI",Arial,sans-serif;
+  background:var(--cream);
+  color:var(--text);
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+.strip{
+  height:5px;
+  background:linear-gradient(90deg,var(--gold) 0 33.3%,var(--paper) 33.3% 66.6%,var(--green) 66.6% 100%);
+}
+.header{
+  background:var(--paper);
+  border-bottom:1px solid var(--border);
+  min-height:76px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 6%;
+}
+.logo{display:flex;align-items:center;gap:14px}
+.logo-mark{
+  width:44px;height:44px;border-radius:12px;
+  background:linear-gradient(155deg,var(--green) 0%,var(--green-deep) 100%);
+  color:#fff;display:flex;align-items:center;justify-content:center;
+  font-size:22px;
+  box-shadow:0 4px 10px rgba(14,74,52,.25);
+}
+.logo-title{font-weight:750;font-size:19px;color:var(--green-deep);letter-spacing:-.2px}
+.logo-sub{font-size:10.5px;color:#8a9188;margin-top:2px;letter-spacing:.3px}
+.back-link{
+  font-size:12px;color:var(--muted);text-decoration:none;
+  display:flex;align-items:center;gap:6px;
+}
+.back-link:hover{color:var(--green-deep)}
+
+.main{
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:40px 20px;
+}
+.card{
+  width:100%;
+  max-width:400px;
+  background:var(--paper);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:38px 34px 32px;
+  box-shadow:0 12px 34px rgba(14,74,52,.10);
+  text-align:center;
+}
+.card-icon{
+  width:56px;height:56px;
+  border-radius:14px;
+  background:var(--green-light);
+  color:var(--green-deep);
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;
+  margin:0 auto 18px;
+}
+.card h1{
+  margin:0 0 6px;
+  font-size:21px;
+  font-weight:750;
+  color:var(--green-deep);
+  letter-spacing:-.3px;
+}
+.card p.sub{
+  margin:0 0 26px;
+  font-size:12.5px;
+  color:var(--muted);
+  line-height:1.5;
+}
+.field{
+  text-align:left;
+  margin-bottom:8px;
+}
+.field label{
+  display:block;
+  font-size:11.5px;
+  font-weight:700;
+  letter-spacing:.4px;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:7px;
+}
+.field input{
+  width:100%;
+  padding:13px 14px;
+  border-radius:10px;
+  border:1.5px solid var(--border);
+  font-size:15px;
+  letter-spacing:3px;
+  color:var(--text);
+  background:var(--cream);
+  outline:none;
+  transition:.2s;
+}
+.field input:focus{
+  border-color:var(--green);
+  background:var(--paper);
+  box-shadow:0 0 0 3px rgba(20,108,76,.12);
+}
+.error-msg{
+  display:none;
+  text-align:left;
+  background:var(--error-light);
+  color:var(--error);
+  font-size:12px;
+  font-weight:600;
+  padding:9px 12px;
+  border-radius:8px;
+  margin:10px 0 4px;
+}
+.error-msg.show{display:block}
+.btn{
+  width:100%;
+  margin-top:18px;
+  padding:13px 14px;
+  border:none;
+  border-radius:10px;
+  background:var(--green);
+  color:#fff;
+  font-size:14.5px;
+  font-weight:700;
+  letter-spacing:.3px;
+  cursor:pointer;
+  transition:.2s;
+}
+.btn:hover{background:var(--green-deep)}
+.btn:active{transform:translateY(1px)}
+
+.footer{
+  border-top:1px solid var(--border);
+  background:var(--paper);
+  padding:20px;
+  text-align:center;
+  font-size:11px;
+  color:#98a2b3;
+}
+</style>
+</head>
+<body>
+
+<div class="strip"></div>
+
+<header class="header">
+  <div class="logo">
+    <div class="logo-mark">🌾</div>
+    <div>
+      <div class="logo-title">AP Agriculture</div>
+      <div class="logo-sub">DIGITAL SERVICES PORTAL</div>
+    </div>
+  </div>
+  <a class="back-link" href="AP_Agriculture_Home_Simple.html">&larr; Back to Home</a>
+</header>
+
+<main class="main">
+  <div class="card">
+    <div class="card-icon">🔡</div>
+    <h1>Codes &ndash; Master</h1>
+    <p class="sub">Enter the access password to continue to Reference Codes Management.</p>
+
+    <form id="loginForm" novalidate>
+      <div class="field">
+        <label for="pw">Password</label>
+        <input type="password" id="pw" name="pw" autocomplete="off" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;" required>
+      </div>
+      <div class="error-msg" id="errorMsg">Incorrect password. Please try again.</div>
+      <button type="submit" class="btn">Login</button>
+    </form>
+  </div>
+</main>
+
+<footer class="footer">
+  © 2026 Andhra Pradesh Agriculture Department &nbsp;|&nbsp; Integrated Digital Services
+</footer>
+
+<script>
+  document.getElementById('loginForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    var pwField = document.getElementById('pw');
+    var errorMsg = document.getElementById('errorMsg');
+    if(pwField.value === 'MASTER'){
+      sessionStorage.setItem('cm_auth', '1');
+      window.location.href = 'Codes_Master.html';
+    } else {
+      errorMsg.classList.add('show');
+      pwField.focus();
+      pwField.select();
+    }
+  });
+
+  document.getElementById('pw').addEventListener('input', function(){
+    document.getElementById('errorMsg').classList.remove('show');
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AP Agriculture Digital Services</title>
+<style>
+:root{
+  --green-deep:#0e4a34;
+  --green:#146c4c;
+  --green-light:#e8f3ee;
+  --gold:#b7862a;
+  --gold-light:#faf3e4;
+  --cream:#f7f5ef;
+  --paper:#ffffff;
+  --text:#1e2a24;
+  --muted:#657268;
+  --border:#e3e2d8;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:"Segoe UI",Arial,sans-serif;
+  background:var(--cream);
+  color:var(--text);
+}
+
+/* -------- top strip (national/state tricolor cue) -------- */
+.strip{
+  height:5px;
+  background:linear-gradient(90deg,var(--gold) 0 33.3%,var(--paper) 33.3% 66.6%,var(--green) 66.6% 100%);
+}
+
+/* -------- header -------- */
+.header{
+  background:var(--paper);
+  border-bottom:1px solid var(--border);
+  min-height:76px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 6%;
+}
+.logo{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+.logo-mark{
+  width:44px;height:44px;border-radius:12px;
+  background:linear-gradient(155deg,var(--green) 0%,var(--green-deep) 100%);
+  color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;
+  box-shadow:0 4px 10px rgba(14,74,52,.25);
+}
+.logo-title{font-weight:750;font-size:19px;color:var(--green-deep);letter-spacing:-.2px}
+.logo-sub{font-size:10.5px;color:#8a9188;margin-top:2px;letter-spacing:.3px}
+.header-right{
+  font-size:12px;color:#657268;
+  display:flex;align-items:center;gap:8px;
+}
+.header-right .dot{
+  width:6px;height:6px;border-radius:50%;background:var(--gold);
+}
+
+/* -------- hero -------- */
+.hero{
+  position:relative;
+  text-align:center;
+  padding:64px 20px 44px;
+  background:var(--paper);
+  overflow:hidden;
+}
+.hero-wheat{
+  position:absolute;
+  top:0; left:0; right:0; bottom:0;
+  opacity:.06;
+  pointer-events:none;
+}
+.tag{
+  display:inline-block;
+  color:var(--green-deep);
+  background:var(--green-light);
+  padding:6px 14px;
+  border-radius:20px;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.7px;
+  text-transform:uppercase;
+  position:relative;
+}
+.hero h1{
+  margin:17px 0 10px;
+  font-size:36px;
+  font-weight:750;
+  letter-spacing:-.8px;
+  position:relative;
+}
+.hero h1 span{color:var(--green)}
+.hero p{
+  margin:0 auto;
+  max-width:620px;
+  color:var(--muted);
+  font-size:14.5px;
+  line-height:1.65;
+  position:relative;
+}
+
+/* -------- service grid -------- */
+.nav-wrap{
+  max-width:960px;
+  margin:38px auto 0;
+  padding:0 20px 70px;
+}
+.section-label{
+  text-align:center;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  color:var(--gold);
+  margin-bottom:18px;
+}
+.tabs{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:16px;
+}
+.tab{
+  text-decoration:none;
+  color:var(--text);
+  background:var(--paper);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:24px 22px;
+  display:flex;
+  align-items:flex-start;
+  gap:16px;
+  transition:.22s ease;
+  position:relative;
+  box-shadow:0 1px 2px rgba(30,42,36,.04);
+}
+.tab:hover{
+  border-color:var(--green);
+  box-shadow:0 10px 24px rgba(14,74,52,.12);
+  transform:translateY(-2px);
+}
+.tab-icon{
+  flex:0 0 auto;
+  width:46px;height:46px;
+  border-radius:12px;
+  background:var(--green-light);
+  color:var(--green-deep);
+  display:flex;align-items:center;justify-content:center;
+  font-size:21px;
+  transition:.22s ease;
+}
+.tab:hover .tab-icon{
+  background:var(--green);
+  color:#fff;
+}
+.tab-body{flex:1;min-width:0}
+.tab-name{
+  font-weight:700;
+  font-size:15.5px;
+  letter-spacing:.2px;
+  color:var(--green-deep);
+}
+.tab-sub{
+  display:block;
+  margin-top:4px;
+  font-size:12.5px;
+  font-weight:400;
+  color:var(--muted);
+  line-height:1.5;
+}
+.tab-arrow{
+  flex:0 0 auto;
+  color:#b7bfb7;
+  font-size:18px;
+  align-self:center;
+  transition:.22s ease;
+}
+.tab:hover .tab-arrow{
+  color:var(--green);
+  transform:translateX(3px);
+}
+.tab.active .tab-icon{
+  background:var(--green);
+  color:#fff;
+}
+
+.info{
+  margin-top:26px;
+  text-align:center;
+  color:#8a9188;
+  font-size:12px;
+}
+
+/* -------- footer -------- */
+.footer{
+  border-top:1px solid var(--border);
+  background:var(--paper);
+  padding:22px;
+  text-align:center;
+  font-size:11px;
+  color:#98a2b3;
+}
+
+@media(max-width:650px){
+  .header{padding:0 20px}
+  .header-right{display:none}
+  .hero{padding:44px 18px 32px}
+  .hero h1{font-size:27px}
+  .tabs{grid-template-columns:1fr}
+  .tab{padding:20px}
+}
+</style>
+</head>
+<body>
+
+<div class="strip"></div>
+
+<header class="header">
+  <div class="logo">
+    <div class="logo-mark">🌾</div>
+    <div>
+      <div class="logo-title">AP Agriculture</div>
+      <div class="logo-sub">DIGITAL SERVICES PORTAL</div>
+    </div>
+  </div>
+  <div class="header-right"><span class="dot"></span>Government of Andhra Pradesh</div>
+</header>
+
+<section class="hero">
+  <svg class="hero-wheat" viewBox="0 0 800 200" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <g stroke="#146c4c" stroke-width="1.4" fill="none">
+      <path d="M40 200 C 40 140, 60 100, 40 20"/>
+      <path d="M40 40 C 55 45, 65 35, 70 20"/>
+      <path d="M40 60 C 25 65, 15 55, 10 40"/>
+      <path d="M40 80 C 55 85, 65 75, 70 60"/>
+      <path d="M40 100 C 25 105, 15 95, 10 80"/>
+      <path d="M760 200 C 760 140, 780 100, 760 20"/>
+      <path d="M760 40 C 775 45, 785 35, 790 20"/>
+      <path d="M760 60 C 745 65, 735 55, 730 40"/>
+      <path d="M760 80 C 775 85, 785 75, 790 60"/>
+      <path d="M760 100 C 745 105, 735 95, 730 80"/>
+    </g>
+  </svg>
+  <div class="tag">Integrated Digital Services</div>
+  <h1>Welcome to <span>AP Agriculture Portal</span></h1>
+  <p>Select a service below to access the respective application.</p>
+</section>
+
+<div class="nav-wrap">
+  <div class="section-label">Available Services</div>
+  <nav class="tabs">
+
+    <a class="tab active" href="DCS_loginpage.html">
+      <div class="tab-icon">💳</div>
+      <div class="tab-body">
+        <span class="tab-name">DCS &ndash; Payments</span>
+        <span class="tab-sub">Payment Management System</span>
+      </div>
+      <div class="tab-arrow">&rarr;</div>
+    </a>
+
+    <a class="tab" href="RSK_loginpage.html">
+      <div class="tab-icon">🗂️</div>
+      <div class="tab-body">
+        <span class="tab-name">RSK &ndash; Masters</span>
+        <span class="tab-sub">Master Data Management</span>
+      </div>
+      <div class="tab-arrow">&rarr;</div>
+    </a>
+
+    <a class="tab" href="Epanta_loginpage.html">
+      <div class="tab-icon">🌱</div>
+      <div class="tab-body">
+        <span class="tab-name">e-PANTA</span>
+        <span class="tab-sub">Crop &amp; Booking Services</span>
+      </div>
+      <div class="tab-arrow">&rarr;</div>
+    </a>
+
+    <a class="tab" href="CodesMaster_loginpage.html">
+      <div class="tab-icon">🔡</div>
+      <div class="tab-body">
+        <span class="tab-name">Codes &ndash; Master</span>
+        <span class="tab-sub">Reference Codes Management</span>
+      </div>
+      <div class="tab-arrow">&rarr;</div>
+    </a>
+
+  </nav>
+
+  <div class="info">
+    Choose the required application to continue
+  </div>
+</div>
+
+<footer class="footer">
+  © 2026 Andhra Pradesh Agriculture Department &nbsp;|&nbsp; Integrated Digital Services
+</footer>
+
+</body>
+</html>
