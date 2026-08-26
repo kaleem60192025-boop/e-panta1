@@ -111,6 +111,8 @@
     appearance:none;-webkit-appearance:none;cursor:pointer;width:100%;
   }
   select:focus{outline:2px solid var(--blue);outline-offset:1px;}
+  select:disabled{background-color:#F4F6FB;color:var(--text-soft);cursor:not-allowed;}
+  .mandal-badge{background:var(--blue-soft);color:var(--blue);padding:3px 10px;border-radius:8px;font-size:11px;font-weight:700;margin-left:8px;vertical-align:middle;}
   .btn-reset{
     font-family:'Inter',sans-serif;font-weight:700;font-size:13.5px;
     background:var(--gold-soft);color:var(--gold);border:none;border-radius:10px;
@@ -269,6 +271,10 @@
       <select id="fDistrict"></select>
     </div>
     <div class="filter-group">
+      <div class="flabel">🏘️ Mandal</div>
+      <select id="fMandal"></select>
+    </div>
+    <div class="filter-group">
       <div class="flabel">🌾 Crop</div>
       <select id="fCrop"></select>
     </div>
@@ -339,7 +345,7 @@ function fillSelect(sel, items, allLabel){
 }
 
 const fYear=document.getElementById('fYear'), fSeason=document.getElementById('fSeason'),
-      fDistrict=document.getElementById('fDistrict'), fCrop=document.getElementById('fCrop');
+      fDistrict=document.getElementById('fDistrict'), fMandal=document.getElementById('fMandal'), fCrop=document.getElementById('fCrop');
 
 fillSelect(fYear, YEARS.map(y=>[y,y]));
 fYear.value = YEARS[YEARS.length-1];
@@ -348,17 +354,38 @@ fSeason.value = 0;
 fillSelect(fDistrict, DISTRICTS.map((d,i)=>[i,d]), 'All Districts');
 fillSelect(fCrop, CROPS.map((c,i)=>[i,c]), 'All Crops');
 
+/* ================= District → Mandal mapping (derived from data, doesn't touch RECORDS) ================= */
+const DISTRICT_MANDALS = {}; // distIdx -> Set(mandalIdx)
+RECORDS.forEach(r=>{
+  const d=r[2], m=r[3];
+  if(!DISTRICT_MANDALS[d]) DISTRICT_MANDALS[d] = new Set();
+  DISTRICT_MANDALS[d].add(m);
+});
+function populateMandalSelect(distIdx){
+  if(distIdx===null){
+    fillSelect(fMandal, [], 'All Mandals');
+    fMandal.disabled = true;
+  } else {
+    const mandIdxs = [...(DISTRICT_MANDALS[distIdx]||[])].sort((a,b)=>MANDALS[a].localeCompare(MANDALS[b]));
+    fillSelect(fMandal, mandIdxs.map(m=>[m,MANDALS[m]]), 'All Mandals');
+    fMandal.disabled = false;
+  }
+  fMandal.value = '';
+}
+populateMandalSelect(null);
+
 /* ================= Aggregation helpers ================= */
 function aggregate(recs){
   let extent=0, farmers=0;
   for(const r of recs){ extent+=r[6]; farmers+=r[5]; }
   return {extent, farmers};
 }
-function filterBase(year, seasonIdx, distIdx, cropIdx){
+function filterBase(year, seasonIdx, distIdx, cropIdx, mandIdx=null){
   return RECORDS.filter(r =>
     r[0]===year && r[1]===seasonIdx &&
     (distIdx===null || r[2]===distIdx) &&
-    (cropIdx===null || r[4]===cropIdx)
+    (cropIdx===null || r[4]===cropIdx) &&
+    (mandIdx===null || r[3]===mandIdx)
   );
 }
 function changeInfo(prev, curr){
@@ -384,10 +411,12 @@ function changePillHTML(ci){
 
 /* ================= State / Title ================= */
 function getState(){
+  const distIdx = fDistrict.value===''? null : parseInt(fDistrict.value);
   return {
     year: parseInt(fYear.value),
     season: parseInt(fSeason.value),
-    distIdx: fDistrict.value===''? null : parseInt(fDistrict.value),
+    distIdx: distIdx,
+    mandIdx: (distIdx===null || fMandal.value==='')? null : parseInt(fMandal.value),
     cropIdx: fCrop.value===''? null : parseInt(fCrop.value)
   };
 }
@@ -395,8 +424,9 @@ function hasPrevYear(year){ return YEARS.includes(year-1); }
 
 function renderTitleAndBadge(st){
   const distLabel = st.distIdx===null? 'All Districts' : DISTRICTS[st.distIdx];
+  const mandLabel = st.mandIdx===null? null : MANDALS[st.mandIdx];
   const cropLabel = st.cropIdx===null? null : CROPS[st.cropIdx];
-  let title = distLabel;
+  let title = mandLabel? (mandLabel + ', ' + distLabel) : distLabel;
   if(cropLabel) title += ' — ' + cropLabel;
   title += ' — ' + seasonLabel(st.season) + ' ' + st.year;
   document.getElementById('scopeTitle').textContent = title;
@@ -481,7 +511,7 @@ function renderReportTab(st){
       });
     });
 
-  } else {
+  } else if(st.mandIdx===null){
     // SINGLE DISTRICT COMPARISON CARDS
     const curr = aggregate(filterBase(st.year, st.season, st.distIdx, st.cropIdx));
     const prev = prevExists ? aggregate(filterBase(prevYear, st.season, st.distIdx, st.cropIdx)) : {extent:0,farmers:0};
@@ -509,6 +539,7 @@ function renderReportTab(st){
         </div>
       </div>
       <div class="single-extra" id="topCropsInDistrict"></div>
+      <div id="mandalWiseTableWrap"></div>
     `;
 
     // Top crops within this district (or this crop if crop filter set -> show top mandals instead)
@@ -540,6 +571,108 @@ function renderReportTab(st){
             <div class="barlist-val">${fmtInt(v.extent)} ac</div>
           </div>`).join('') || `<div class="empty-state">Not grown here</div>`;
     }
+
+    // Mandal-wise abstract table for this district (the "mandal wise" analysis)
+    const currMRecs = filterBase(st.year, st.season, st.distIdx, st.cropIdx);
+    const prevMRecs = prevExists ? filterBase(prevYear, st.season, st.distIdx, st.cropIdx) : [];
+    const currByMand = {}, prevByMand = {};
+    currMRecs.forEach(r=>{ const m=r[3]; if(!currByMand[m]) currByMand[m]={extent:0,farmers:0}; currByMand[m].extent+=r[6]; currByMand[m].farmers+=r[5]; });
+    prevMRecs.forEach(r=>{ const m=r[3]; if(!prevByMand[m]) prevByMand[m]={extent:0,farmers:0}; prevByMand[m].extent+=r[6]; prevByMand[m].farmers+=r[5]; });
+    const mandIdxs = Object.keys(currByMand).map(Number).sort((a,b)=>currByMand[b].extent-currByMand[a].extent);
+
+    const mRows = mandIdxs.map((m,i)=>{
+      const c = currByMand[m], p = prevByMand[m] || {extent:0,farmers:0};
+      const ciExt = changeInfo(p.extent, c.extent), ciFarm = changeInfo(p.farmers, c.farmers);
+      return `<tr>
+        <td class="sno">${i+1}</td>
+        <td class="name">${MANDALS[m]}</td>
+        <td class="num prev">${prevExists?fmtInt(p.extent):'–'}</td>
+        <td class="num">${fmtInt(c.extent)}</td>
+        <td class="chg ${prevExists?ciExt.dir:'flat'} col-sep">${prevExists?changeBadgeHTML(ciExt):'–'}</td>
+        <td class="num prev col-sep">${prevExists?fmtInt(p.farmers):'–'}</td>
+        <td class="num">${fmtInt(c.farmers)}</td>
+        <td class="chg ${prevExists?ciFarm.dir:'flat'}">${prevExists?changeBadgeHTML(ciFarm):'–'}</td>
+      </tr>`;
+    }).join('') || `<tr><td colspan="8" class="empty-state">No data for this selection</td></tr>`;
+
+    document.getElementById('mandalWiseTableWrap').innerHTML = `
+      <div class="table-card">
+        <div class="table-card-head">
+          <h3>Mandal-wise Abstract — ${DISTRICTS[st.distIdx]}<span class="mandal-badge">${mandIdxs.length} mandals</span></h3>
+          <input type="text" id="mandalSearch" class="search-mini" placeholder="Search mandal…">
+        </div>
+        <div class="table-scroll">
+          <table id="mandalTable">
+            <thead>
+              <tr class="group-row">
+                <th class="corner" colspan="2"></th>
+                <th colspan="3">Extent (Acres) — ${prevExists?seasonLabel(st.season)+' '+prevYear+' → ':''}${seasonLabel(st.season)} ${st.year}</th>
+                <th colspan="3">Farmers — ${prevExists?seasonLabel(st.season)+' '+prevYear+' → ':''}${seasonLabel(st.season)} ${st.year}</th>
+              </tr>
+              <tr class="sub-row">
+                <th class="left">S.No</th><th class="left">Mandal</th>
+                <th>Previous</th><th>Current</th><th>Chg%</th>
+                <th class="col-sep">Previous</th><th>Current</th><th>Chg%</th>
+              </tr>
+            </thead>
+            <tbody id="mandalTableBody">${mRows}</tbody>
+          </table>
+        </div>
+      </div>`;
+
+    document.getElementById('mandalSearch').addEventListener('input', (e)=>{
+      const term = e.target.value.trim().toLowerCase();
+      document.querySelectorAll('#mandalTableBody tr').forEach(tr=>{
+        const nameCell = tr.querySelector('td.name');
+        if(!nameCell) return;
+        tr.style.display = nameCell.textContent.toLowerCase().includes(term) ? '' : 'none';
+      });
+    });
+
+  } else {
+    // SINGLE MANDAL COMPARISON CARDS
+    const curr = aggregate(filterBase(st.year, st.season, st.distIdx, st.cropIdx, st.mandIdx));
+    const prev = prevExists ? aggregate(filterBase(prevYear, st.season, st.distIdx, st.cropIdx, st.mandIdx)) : {extent:0,farmers:0};
+    const ciExt = changeInfo(prev.extent, curr.extent), ciFarm = changeInfo(prev.farmers, curr.farmers);
+
+    el.innerHTML = `
+      <div class="compare-grid">
+        <div class="compare-card">
+          <div class="card-label">🗂️ Extent (Acres) — Previous vs Current</div>
+          <div class="compare-boxes">
+            <div class="compare-box"><div class="yr">${prevExists?seasonLabel(st.season)+' '+prevYear:'—'}</div><div class="val">${prevExists?fmtInt(prev.extent):'–'}</div></div>
+            <div class="compare-arrow">→</div>
+            <div class="compare-box"><div class="yr">${seasonLabel(st.season)} ${st.year}</div><div class="val">${fmtInt(curr.extent)}</div></div>
+          </div>
+          ${prevExists?changePillHTML(ciExt):''}
+        </div>
+        <div class="compare-card gold">
+          <div class="card-label">👥 Farmers — Previous vs Current</div>
+          <div class="compare-boxes">
+            <div class="compare-box"><div class="yr">${prevExists?seasonLabel(st.season)+' '+prevYear:'—'}</div><div class="val">${prevExists?fmtInt(prev.farmers):'–'}</div></div>
+            <div class="compare-arrow">→</div>
+            <div class="compare-box"><div class="yr">${seasonLabel(st.season)} ${st.year}</div><div class="val">${fmtInt(curr.farmers)}</div></div>
+          </div>
+          ${prevExists?changePillHTML(ciFarm):''}
+        </div>
+      </div>
+      <div class="single-extra" id="topCropsInMandal"></div>
+    `;
+
+    // Top crops within this mandal
+    const box = document.getElementById('topCropsInMandal');
+    const recs = filterBase(st.year, st.season, st.distIdx, null, st.mandIdx);
+    const agg={};
+    recs.forEach(r=>{ const c=r[4]; if(!agg[c]) agg[c]={extent:0,farmers:0}; agg[c].extent+=r[6]; agg[c].farmers+=r[5]; });
+    const top = Object.entries(agg).sort((a,b)=>b[1].extent-a[1].extent).slice(0,8);
+    const maxV = Math.max(1,...top.map(([,v])=>v.extent));
+    box.innerHTML = `<h3>Top Crops in ${MANDALS[st.mandIdx]} Mandal</h3><div class="desc">Ranked by cultivated extent for ${seasonLabel(st.season)} ${st.year}</div>` +
+      top.map(([c,v],i)=>`
+        <div class="barlist-row">
+          <div class="barlist-label">${CROPS[c]}</div>
+          <div class="barlist-track"><div class="barlist-fill" style="width:${(v.extent/maxV*100).toFixed(1)}%;background:${BARCOLORS[i%BARCOLORS.length]}"></div></div>
+          <div class="barlist-val">${fmtInt(v.extent)} ac</div>
+        </div>`).join('') || `<div class="empty-state">No crop data</div>`;
   }
 }
 
@@ -583,7 +716,7 @@ function renderBarChartTab(st){
         </div>
       </div>`;
 
-  } else {
+  } else if(st.mandIdx===null){
     const curr = aggregate(filterBase(st.year, st.season, st.distIdx, st.cropIdx));
     const prev = prevExists ? aggregate(filterBase(prevYear, st.season, st.distIdx, st.cropIdx)) : {extent:0,farmers:0};
     const maxExt = Math.max(curr.extent, prev.extent, 1);
@@ -594,6 +727,15 @@ function renderBarChartTab(st){
     recs.forEach(r=>{ const c=r[4]; if(!agg[c]) agg[c]={extent:0}; agg[c].extent+=r[6]; });
     const topCrops = Object.entries(agg).sort((a,b)=>b[1].extent-a[1].extent).slice(0,10);
     const maxCrop = Math.max(1,...topCrops.map(([,v])=>v.extent));
+
+    // Mandal-wise ranking within this district
+    const mandRecs = filterBase(st.year, st.season, st.distIdx, st.cropIdx);
+    const mAgg={};
+    mandRecs.forEach(r=>{ const m=r[3]; if(!mAgg[m]) mAgg[m]={extent:0,farmers:0}; mAgg[m].extent+=r[6]; mAgg[m].farmers+=r[5]; });
+    const topMandExt = Object.entries(mAgg).sort((a,b)=>b[1].extent-a[1].extent).slice(0,15);
+    const maxMandExt = Math.max(1,...topMandExt.map(([,v])=>v.extent));
+    const topMandFarm = Object.entries(mAgg).sort((a,b)=>b[1].farmers-a[1].farmers).slice(0,15);
+    const maxMandFarm = Math.max(1,...topMandFarm.map(([,v])=>v.farmers));
 
     el.innerHTML = `
       <div class="grid-2">
@@ -639,6 +781,87 @@ function renderBarChartTab(st){
             <div class="barlist-track"><div class="barlist-fill" style="width:${(v.extent/maxCrop*100).toFixed(1)}%;background:${BARCOLORS[i%BARCOLORS.length]}"></div></div>
             <div class="barlist-val">${fmtInt(v.extent)} ac</div>
           </div>`).join('') || `<div class="empty-state">No crop data</div>`}
+      </div>
+      <div class="grid-2">
+        <div class="barlist-panel">
+          <h3>Top Mandals by Extent</h3>
+          <div class="desc">${DISTRICTS[st.distIdx]}${st.cropIdx!==null?' · '+CROPS[st.cropIdx]:''} — ${seasonLabel(st.season)} ${st.year}</div>
+          ${topMandExt.map(([m,v],i)=>`
+            <div class="barlist-row">
+              <div class="barlist-label">${MANDALS[m]}</div>
+              <div class="barlist-track"><div class="barlist-fill" style="width:${(v.extent/maxMandExt*100).toFixed(1)}%;background:${BARCOLORS[i%BARCOLORS.length]}"></div></div>
+              <div class="barlist-val">${fmtInt(v.extent)} ac</div>
+            </div>`).join('') || `<div class="empty-state">No data</div>`}
+        </div>
+        <div class="barlist-panel">
+          <h3>Top Mandals by Farmers</h3>
+          <div class="desc">${DISTRICTS[st.distIdx]}${st.cropIdx!==null?' · '+CROPS[st.cropIdx]:''} — ${seasonLabel(st.season)} ${st.year}</div>
+          ${topMandFarm.map(([m,v],i)=>`
+            <div class="barlist-row">
+              <div class="barlist-label">${MANDALS[m]}</div>
+              <div class="barlist-track"><div class="barlist-fill" style="width:${(v.farmers/maxMandFarm*100).toFixed(1)}%;background:${BARCOLORS[i%BARCOLORS.length]}"></div></div>
+              <div class="barlist-val">${fmtInt(v.farmers)}</div>
+            </div>`).join('') || `<div class="empty-state">No data</div>`}
+        </div>
+      </div>`;
+
+  } else {
+    // SINGLE MANDAL bar chart view
+    const curr = aggregate(filterBase(st.year, st.season, st.distIdx, st.cropIdx, st.mandIdx));
+    const prev = prevExists ? aggregate(filterBase(prevYear, st.season, st.distIdx, st.cropIdx, st.mandIdx)) : {extent:0,farmers:0};
+    const maxExt = Math.max(curr.extent, prev.extent, 1);
+    const maxFarm = Math.max(curr.farmers, prev.farmers, 1);
+
+    const recs = filterBase(st.year, st.season, st.distIdx, null, st.mandIdx);
+    const agg={};
+    recs.forEach(r=>{ const c=r[4]; if(!agg[c]) agg[c]={extent:0}; agg[c].extent+=r[6]; });
+    const topCrops = Object.entries(agg).sort((a,b)=>b[1].extent-a[1].extent).slice(0,10);
+    const maxCrop = Math.max(1,...topCrops.map(([,v])=>v.extent));
+
+    el.innerHTML = `
+      <div class="grid-2">
+        <div class="barlist-panel">
+          <h3>Extent — Previous vs Current</h3>
+          <div class="desc">${MANDALS[st.mandIdx]}, ${DISTRICTS[st.distIdx]}${st.cropIdx!==null?' · '+CROPS[st.cropIdx]:''}</div>
+          <div class="mini-compare">
+            <div class="mini-compare-row">
+              <div class="mlabel">${prevExists?seasonLabel(st.season)+' '+prevYear:'No prev.'}</div>
+              <div class="mtrack"><div class="mfill prev" style="width:${prevExists?(prev.extent/maxExt*100).toFixed(1):0}%"></div></div>
+              <div class="mval">${prevExists?fmtInt(prev.extent):'–'}</div>
+            </div>
+            <div class="mini-compare-row">
+              <div class="mlabel">${seasonLabel(st.season)} ${st.year}</div>
+              <div class="mtrack"><div class="mfill curr" style="width:${(curr.extent/maxExt*100).toFixed(1)}%"></div></div>
+              <div class="mval">${fmtInt(curr.extent)}</div>
+            </div>
+          </div>
+        </div>
+        <div class="barlist-panel">
+          <h3>Farmers — Previous vs Current</h3>
+          <div class="desc">${MANDALS[st.mandIdx]}, ${DISTRICTS[st.distIdx]}${st.cropIdx!==null?' · '+CROPS[st.cropIdx]:''}</div>
+          <div class="mini-compare">
+            <div class="mini-compare-row">
+              <div class="mlabel">${prevExists?seasonLabel(st.season)+' '+prevYear:'No prev.'}</div>
+              <div class="mtrack"><div class="mfill prev" style="width:${prevExists?(prev.farmers/maxFarm*100).toFixed(1):0}%"></div></div>
+              <div class="mval">${prevExists?fmtInt(prev.farmers):'–'}</div>
+            </div>
+            <div class="mini-compare-row">
+              <div class="mlabel">${seasonLabel(st.season)} ${st.year}</div>
+              <div class="mtrack"><div class="mfill curr gold" style="width:${(curr.farmers/maxFarm*100).toFixed(1)}%"></div></div>
+              <div class="mval">${fmtInt(curr.farmers)}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="barlist-panel">
+        <h3>Crop-wise Breakdown</h3>
+        <div class="desc">Top crops in ${MANDALS[st.mandIdx]} mandal by extent — ${seasonLabel(st.season)} ${st.year}</div>
+        ${topCrops.map(([c,v],i)=>`
+          <div class="barlist-row">
+            <div class="barlist-label">${CROPS[c]}</div>
+            <div class="barlist-track"><div class="barlist-fill" style="width:${(v.extent/maxCrop*100).toFixed(1)}%;background:${BARCOLORS[i%BARCOLORS.length]}"></div></div>
+            <div class="barlist-val">${fmtInt(v.extent)} ac</div>
+          </div>`).join('') || `<div class="empty-state">No crop data</div>`}
       </div>`;
   }
 }
@@ -650,9 +873,9 @@ function renderCropwiseTab(st){
   const prevExists = hasPrevYear(st.year);
 
   if(st.cropIdx===null){
-    // ALL CROPS TABLE (scoped to district filter if set)
-    const currRecs = filterBase(st.year, st.season, st.distIdx, null);
-    const prevRecs = prevExists ? filterBase(prevYear, st.season, st.distIdx, null) : [];
+    // ALL CROPS TABLE (scoped to district/mandal filter if set)
+    const currRecs = filterBase(st.year, st.season, st.distIdx, null, st.mandIdx);
+    const prevRecs = prevExists ? filterBase(prevYear, st.season, st.distIdx, null, st.mandIdx) : [];
     const currByCrop = {}, prevByCrop = {};
     currRecs.forEach(r=>{ const c=r[4]; if(!currByCrop[c]) currByCrop[c]={extent:0,farmers:0}; currByCrop[c].extent+=r[6]; currByCrop[c].farmers+=r[5]; });
     prevRecs.forEach(r=>{ const c=r[4]; if(!prevByCrop[c]) prevByCrop[c]={extent:0,farmers:0}; prevByCrop[c].extent+=r[6]; prevByCrop[c].farmers+=r[5]; });
@@ -676,7 +899,7 @@ function renderCropwiseTab(st){
     el.innerHTML = `
       <div class="table-card">
         <div class="table-card-head">
-          <h3>All Crops — ${st.distIdx!==null?DISTRICTS[st.distIdx]+' · ':''}${seasonLabel(st.season)} ${st.year}</h3>
+          <h3>All Crops — ${st.mandIdx!==null?MANDALS[st.mandIdx]+', ':''}${st.distIdx!==null?DISTRICTS[st.distIdx]+' · ':''}${seasonLabel(st.season)} ${st.year}</h3>
           <input type="text" id="cropSearch" class="search-mini" placeholder="Search crop…">
         </div>
         <div class="table-scroll">
@@ -708,9 +931,9 @@ function renderCropwiseTab(st){
     });
 
   } else {
-    // SINGLE CROP COMPARISON CARDS (scoped to district filter if set)
-    const curr = aggregate(filterBase(st.year, st.season, st.distIdx, st.cropIdx));
-    const prev = prevExists ? aggregate(filterBase(prevYear, st.season, st.distIdx, st.cropIdx)) : {extent:0,farmers:0};
+    // SINGLE CROP COMPARISON CARDS (scoped to district/mandal filter if set)
+    const curr = aggregate(filterBase(st.year, st.season, st.distIdx, st.cropIdx, st.mandIdx));
+    const prev = prevExists ? aggregate(filterBase(prevYear, st.season, st.distIdx, st.cropIdx, st.mandIdx)) : {extent:0,farmers:0};
     const ciExt = changeInfo(prev.extent, curr.extent), ciFarm = changeInfo(prev.farmers, curr.farmers);
 
     el.innerHTML = `
@@ -762,12 +985,18 @@ function renderAll(){
   renderCropwiseTab(st);
 }
 
-[fYear, fSeason, fDistrict, fCrop].forEach(sel=>sel.addEventListener('change', renderAll));
+[fYear, fSeason, fMandal, fCrop].forEach(sel=>sel.addEventListener('change', renderAll));
+fDistrict.addEventListener('change', ()=>{
+  const distIdx = fDistrict.value===''? null : parseInt(fDistrict.value);
+  populateMandalSelect(distIdx);
+  renderAll();
+});
 
 document.getElementById('btnReset').addEventListener('click', ()=>{
   fYear.value = YEARS[YEARS.length-1];
   fSeason.value = 0;
   fDistrict.value = '';
+  populateMandalSelect(null);
   fCrop.value = '';
   renderAll();
 });
