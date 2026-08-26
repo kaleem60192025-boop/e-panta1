@@ -554,50 +554,77 @@ tfoot td:nth-child(2){text-align:left;padding-left:16px;}
   }
 })();
 </script>
+
+<!-- ===== Shared e-Panta header (from epanta_heder.html) ===== -->
 <style>
-.logout-btn{
-  border:1px solid #d8dfdb;
-  background:#fff;
-  color:#b42318;
-  border-radius:8px;
-  padding:9px 14px;
-  font-size:12px;
-  font-weight:700;
-  cursor:pointer;
-  z-index:9999;
-}
-.logout-btn:hover{background:#fff3f1;}
-.topbar-actions{
-  position:fixed;
-  top:18px;
-  right:24px;
-  z-index:9999;
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
-.rsk-master-btn{
-  border:1px solid #d8dfdb;
-  background:#fff;
-  color:#256a4a;
-  border-radius:8px;
-  padding:9px 14px;
-  font-size:12px;
-  font-weight:700;
-  cursor:pointer;
-  text-decoration:none;
-  white-space:nowrap;
-}
-.rsk-master-btn:hover{background:#f0f7f3;}
+  #epanta-header{
+    --primary:#1E4638;
+    --primary-dark:#142F26;
+    --accent:#C89B3C;
+    --rust:#A9432E;
+    background:linear-gradient(180deg,var(--primary),var(--primary-dark));
+    color:#fff;
+    padding:16px 28px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    border-bottom:3px solid var(--accent);
+    position:sticky;
+    top:0;
+    z-index:9999;
+    box-sizing:border-box;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  }
+  #epanta-header .brand{display:flex;align-items:baseline;gap:10px;}
+  #epanta-header .brand .eyebrow{
+    font-size:10.5px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--accent);
+  }
+  #epanta-header h1{
+    font-weight:800;
+    font-size:20px;
+    margin:0;
+  }
+  #epanta-header .header-actions{display:flex;gap:10px;}
+  #epanta-header .header-actions button{
+    font-weight:700;
+    font-size:13px;
+    padding:9px 16px;
+    border-radius:7px;
+    cursor:pointer;
+    border:1px solid transparent;
+    transition:all .15s;
+  }
+  #epanta-header #backBtn{background:transparent;color:#fff;border-color:rgba(255,255,255,0.35);}
+  #epanta-header #backBtn:hover{background:rgba(255,255,255,0.12);}
+  #epanta-header #logoutBtn{background:var(--rust);color:#fff;}
+  #epanta-header #logoutBtn:hover{background:#8f3a29;}
 </style>
-<div class="topbar-actions">
-  <a class="rsk-master-btn" id="rskMasterBtn" href="ap-rsk-landparcel.html">RSK MASTER-PARCEL WISE</a>
-  <button class="logout-btn" id="logoutBtn" type="button">↪ Logout</button>
-</div>
+<header id="epanta-header">
+  <div class="brand">
+    <h1>e-Panta Analysis</h1>
+    <span class="eyebrow">AP Agriculture Dept.</span>
+  </div>
+  <div class="header-actions">
+    <button id="backBtn" type="button">&larr; Back</button>
+    <button id="logoutBtn" type="button">Logout</button>
+  </div>
+</header>
+<script>
+  document.getElementById('backBtn').addEventListener('click', function(){
+    window.location.href = 'epanta_home_page.html';
+  });
+  document.getElementById('logoutBtn').addEventListener('click', function(){
+    sessionStorage.removeItem('epanta_auth');
+    window.location.href = 'AP_Agriculture_Home_Simple.html';
+  });
+</script>
 
 
 <div class="topbar">
-  <div class="eyebrow">Andhra Pradesh · Department of Agriculture</div>
+
   <h1>🌾 Agriculture Data Explorer</h1>
   <p>Season-wise Extent &amp; Farmer coverage across 26 districts (Kharif 2022 – Rabi 2025-26)</p>
   <div class="badge-row">
@@ -1053,22 +1080,6 @@ document.getElementById('resetBtn').addEventListener('click', ()=>{
 });
 
 render();
-</script>
-
-<script>
-document.getElementById('rskMasterBtn')?.addEventListener('click', function(e){
-  e.preventDefault();
-  if (sessionStorage.getItem("epanta_auth") === "true") {
-    window.location.href = "ap-rsk-landparcel.html";
-  } else {
-    window.location.replace("Epanta_loginpage.html");
-  }
-});
-
-document.getElementById('logoutBtn')?.addEventListener('click', function () {
-  sessionStorage.removeItem("epanta_auth");
-  window.location.href = 'AP_Agriculture_Home_Simple.html';
-});
 </script>
 
 </body>

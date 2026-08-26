@@ -1,0 +1,61 @@
+<!-- epanta_heder.html : shared header fragment, imported into other e-Panta pages -->
+<style>
+  #epanta-header{
+    --primary:#1E4638;
+    --primary-dark:#142F26;
+    --accent:#C89B3C;
+    --rust:#A9432E;
+    background:linear-gradient(180deg,var(--primary),var(--primary-dark));
+    color:#fff;
+    padding:16px 28px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    border-bottom:3px solid var(--accent);
+    position:sticky;
+    top:0;
+    z-index:20;
+    font-family:'Inter',sans-serif;
+    box-sizing:border-box;
+  }
+  #epanta-header .brand{display:flex;align-items:baseline;gap:10px;}
+  #epanta-header .brand .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--accent);
+  }
+  #epanta-header h1{
+    font-family:'Fraunces',serif;
+    font-weight:900;
+    font-size:22px;
+    margin:0;
+  }
+  #epanta-header .header-actions{display:flex;gap:10px;}
+  #epanta-header .header-actions button{
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:13px;
+    padding:9px 16px;
+    border-radius:7px;
+    cursor:pointer;
+    border:1px solid transparent;
+    transition:all .15s;
+  }
+  #epanta-header #backBtn{background:transparent;color:#fff;border-color:rgba(255,255,255,0.35);}
+  #epanta-header #backBtn:hover{background:rgba(255,255,255,0.12);}
+  #epanta-header #logoutBtn{background:var(--rust);color:#fff;}
+  #epanta-header #logoutBtn:hover{background:#8f3a29;}
+</style>
+
+<header id="epanta-header">
+  <div class="brand">
+    <h1>e-Panta Analysis</h1>
+    <span class="eyebrow">AP Agriculture Dept.</span>
+  </div>
+  <div class="header-actions">
+    <button id="backBtn" type="button">&larr; Back</button>
+    <button id="logoutBtn" type="button">Logout</button>
+  </div>
+</header>
