@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>e-Panta Analysis | AP Agriculture Dept.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700;800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<style>
+  :root{
+    --header-bg-1:#12352c;
+    --header-bg-2:#0b241d;
+    --gold:#d7a84f;
+    --gold-soft:#f4e5c5;
+    --page-bg:#eef1f6;
+    --card-bg:#ffffff;
+    --navy:#152449;
+    --navy-2:#1d3568;
+    --ink:#1b2333;
+    --muted:#6b7280;
+    --muted-2:#9aa3b2;
+    --border:#e6e9ef;
+    --green:#1a8a4d;
+    --green-bg:#e7f6ed;
+    --green-pill:#1f9254;
+    --red:#d1453b;
+    --red-bg:#fdecec;
+    --logout:#c8503a;
+    --logout-hover:#b3452f;
+    --shadow: 0 1px 2px rgba(16,24,40,.04), 0 8px 24px -12px rgba(16,24,40,.10);
+    --shadow-sm: 0 1px 2px rgba(16,24,40,.06);
+    --radius-lg:16px;
+    --radius-md:10px;
+    --radius-sm:8px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--page-bg);
+    font-family:'Inter',system-ui,-apple-system,sans-serif;
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+  .serif{font-family:'Source Serif 4', Georgia, serif;}
+  .mono{font-family:'JetBrains Mono', ui-monospace, monospace;}
+
+  /* ---------- Header ---------- */
+  header.topbar{
+    background:linear-gradient(180deg,var(--header-bg-1),var(--header-bg-2));
+    border-bottom:3px solid var(--gold);
+    padding:14px 28px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:12px;
+  }
+  .brand{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;}
+  .brand .logo{
+    color:#fff;
+    font-size:22px;
+    font-weight:700;
+    letter-spacing:.2px;
+  }
+  .brand .logo span.mark{color:var(--gold);}
+  .brand .dept{
+    color:var(--gold);
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:1.6px;
+    text-transform:uppercase;
+    padding-top:2px;
+  }
+  .top-actions{display:flex; align-items:center; gap:22px; flex-wrap:wrap;}
+  .top-links{display:flex; gap:26px;}
+  .top-links a{
+    color:#e9edf3;
+    text-decoration:none;
+    font-size:14px;
+    font-weight:500;
+    opacity:.92;
+    transition:opacity .15s ease, color .15s ease;
+  }
+  .top-links a:hover{opacity:1; color:var(--gold-soft);}
+  .btn{
+    font-family:inherit;
+    font-size:14px;
+    font-weight:600;
+    border-radius:8px;
+    padding:9px 16px;
+    cursor:pointer;
+    border:1px solid transparent;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    transition:transform .12s ease, background .15s ease, box-shadow .15s ease;
+    text-decoration:none;
+  }
+  .btn:active{transform:translateY(1px);}
+  .btn-back{
+    background:transparent;
+    border-color:rgba(255,255,255,.35);
+    color:#fff;
+  }
+  .btn-back:hover{background:rgba(255,255,255,.08); border-color:rgba(255,255,255,.55);}
+  .btn-logout{
+    background:var(--logout);
+    color:#fff;
+    box-shadow:var(--shadow-sm);
+  }
+  .btn-logout:hover{background:var(--logout-hover);}
+
+  /* ---------- Layout ---------- */
+  .wrap{max-width:1440px; margin:0 auto; padding:22px 28px 60px;}
+
+  /* ---------- Filter card ---------- */
+  .filters-card{
+    background:var(--card-bg);
+    border-radius:var(--radius-lg);
+    box-shadow:var(--shadow);
+    padding:20px 22px;
+    display:grid;
+    grid-template-columns:repeat(5,1fr) auto;
+    gap:16px;
+    align-items:end;
+    margin-bottom:18px;
+  }
+  .field{display:flex; flex-direction:column; gap:8px; min-width:0;}
+  .field label{
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.8px;
+    text-transform:uppercase;
+    color:var(--muted);
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .field label .ico{font-size:13px; line-height:1;}
+  .select-wrap{position:relative;}
+  select{
+    appearance:none;
+    -webkit-appearance:none;
+    width:100%;
+    font-family:inherit;
+    font-size:14.5px;
+    font-weight:600;
+    color:var(--ink);
+    background:#fff;
+    border:1.5px solid var(--border);
+    border-radius:9px;
+    padding:10px 34px 10px 12px;
+    cursor:pointer;
+    transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  select:hover{border-color:#c7cede;}
+  select:focus{outline:none; border-color:var(--navy-2); box-shadow:0 0 0 3px rgba(29,53,104,.12);}
+  select:disabled{
+    background:#f6f7f9;
+    color:var(--muted-2);
+    cursor:not-allowed;
+    border-color:var(--border);
+  }
+  .select-wrap::after{
+    content:"";
+    position:absolute;
+    right:13px; top:50%;
+    width:8px; height:8px;
+    border-right:2px solid var(--muted-2);
+    border-bottom:2px solid var(--muted-2);
+    transform:translateY(-65%) rotate(45deg);
+    pointer-events:none;
+  }
+  .btn-reset{
+    background:var(--gold-soft);
+    color:#9a6b1f;
+    border:1px solid #ecd7a8;
+    white-space:nowrap;
+    padding:10px 18px;
+  }
+  .btn-reset:hover{background:#efd9a3;}
+
+  /* ---------- Tabs ---------- */
+  .tabs{
+    display:flex;
+    gap:6px;
+    background:transparent;
+    margin-bottom:20px;
+    flex-wrap:wrap;
+  }
+  .tab-btn{
+    font-family:inherit;
+    font-size:14.5px;
+    font-weight:600;
+    color:var(--muted);
+    background:transparent;
+    border:none;
+    border-radius:10px;
+    padding:11px 18px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    transition:background .15s ease, color .15s ease;
+  }
+  .tab-btn:hover{background:#e4e8f0; color:var(--ink);}
+  .tab-btn.active{
+    background:var(--navy);
+    color:#fff;
+    box-shadow:var(--shadow-sm);
+  }
+  .tab-btn .ico{font-size:15px;}
+
+  /* ---------- Section heading ---------- */
+  .section-head{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    margin-bottom:16px;
+    flex-wrap:wrap;
+    gap:12px;
+  }
+  .section-head h1{
+    font-size:26px;
+    font-weight:700;
+    margin:0 0 4px;
+    color:var(--navy);
+  }
+  .section-head .sub{
+    color:var(--muted);
+    font-size:14px;
+  }
+  .pill{
+    background:var(--green-pill);
+    color:#fff;
+    font-size:13px;
+    font-weight:700;
+    padding:7px 18px;
+    border-radius:999px;
+    letter-spacing:.3px;
+    box-shadow:var(--shadow-sm);
+  }
+
+  /* ---------- Table card ---------- */
+  .panel{
+    background:var(--card-bg);
+    border-radius:var(--radius-lg);
+    box-shadow:var(--shadow);
+    overflow:hidden;
+  }
+  .panel-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:18px 22px;
+    flex-wrap:wrap;
+    gap:12px;
+    border-bottom:1px solid var(--border);
+  }
+  .panel-head h2{
+    font-size:16px;
+    font-weight:700;
+    margin:0;
+    color:var(--ink);
+  }
+  .search-box{
+    position:relative;
+  }
+  .search-box input{
+    font-family:inherit;
+    font-size:14px;
+    border:1.5px solid var(--border);
+    border-radius:9px;
+    padding:9px 14px 9px 34px;
+    width:230px;
+    color:var(--ink);
+    background:#fff;
+  }
+  .search-box input:focus{outline:none; border-color:var(--navy-2); box-shadow:0 0 0 3px rgba(29,53,104,.12);}
+  .search-box::before{
+    content:"⌕";
+    position:absolute;
+    left:12px; top:50%;
+    transform:translateY(-50%);
+    color:var(--muted-2);
+    font-size:15px;
+  }
+
+  .table-scroll{overflow-x:auto;}
+  table{width:100%; border-collapse:collapse; min-width:920px;}
+  thead tr.grp th{
+    background:var(--navy);
+    color:#fff;
+    font-size:11.5px;
+    font-weight:700;
+    letter-spacing:.6px;
+    text-transform:uppercase;
+    padding:12px 14px;
+    text-align:center;
+    border-bottom:1px solid rgba(255,255,255,.12);
+  }
+  thead tr.sub th{
+    background:var(--navy-2);
+    color:#dbe3f5;
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:.4px;
+    text-transform:uppercase;
+    padding:9px 14px;
+    text-align:right;
+  }
+  thead tr.sub th.left{text-align:left;}
+  thead tr.grp th.left{text-align:left;}
+  tbody td{
+    padding:13px 14px;
+    font-size:14px;
+    border-bottom:1px solid var(--border);
+    text-align:right;
+    white-space:nowrap;
+  }
+  tbody td.left{text-align:left;}
+  tbody tr:hover{background:#f8fafc;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr.grand-total{background:#f4f6fa;}
+  tbody tr.grand-total:hover{background:#f4f6fa;}
+  tbody tr.grand-total td{
+    font-weight:800;
+    color:var(--navy);
+    border-top:2px solid var(--navy);
+    border-bottom:none;
+  }
+  tbody tr.grand-total td.left{
+    letter-spacing:.4px;
+    font-size:13px;
+  }
+  .sno{color:var(--navy-2); font-weight:700;}
+  .dname{font-weight:700; color:var(--ink);}
+  .prev-val{color:var(--muted-2);}
+  .cur-val{color:var(--ink); font-weight:600;}
+  .chg{
+    display:inline-flex;
+    align-items:center;
+    gap:3px;
+    font-weight:700;
+    font-size:13px;
+    padding:3px 8px;
+    border-radius:6px;
+  }
+  .chg.up{color:var(--green); background:var(--green-bg);}
+  .chg.down{color:var(--red); background:var(--red-bg);}
+  .chg.flat{color:var(--muted); background:#f1f2f5;}
+  .na{color:var(--muted-2); font-size:13px;}
+  .col-sep{border-left:1px solid var(--border);}
+
+  /* ---------- Chart / crop panels ---------- */
+  .panel-body{padding:22px;}
+  .chart-controls{
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  }
+  .toggle-group{
+    display:flex;
+    background:#f1f3f7;
+    border-radius:9px;
+    padding:3px;
+    gap:2px;
+  }
+  .toggle-group button{
+    font-family:inherit;
+    font-size:13px;
+    font-weight:600;
+    color:var(--muted);
+    background:transparent;
+    border:none;
+    padding:7px 14px;
+    border-radius:7px;
+    cursor:pointer;
+  }
+  .toggle-group button.active{
+    background:#fff;
+    color:var(--navy);
+    box-shadow:var(--shadow-sm);
+  }
+  .chart-wrap{
+    margin-top:18px;
+    overflow-x:auto;
+  }
+  .chart-canvas-holder{height:440px; position:relative;}
+
+  /* Crop-wise */
+  .crop-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+    gap:16px;
+    margin-bottom:22px;
+  }
+  .crop-card{
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:18px;
+    background:#fbfcfe;
+  }
+  .crop-card .cname{
+    display:flex; align-items:center; gap:8px;
+    font-weight:700; font-size:14.5px; color:var(--ink); margin-bottom:14px;
+  }
+  .crop-card .swatch{width:11px; height:11px; border-radius:3px; flex-shrink:0;}
+  .crop-metric{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;}
+  .crop-metric .k{font-size:12px; color:var(--muted); font-weight:600;}
+  .crop-metric .v{font-size:15px; font-weight:700; color:var(--ink);}
+  .crop-metric .v .prev{font-size:12px; color:var(--muted-2); font-weight:600; margin-right:4px;}
+
+  .empty-state{
+    padding:60px 20px;
+    text-align:center;
+    color:var(--muted);
+  }
+  .empty-state .big{font-size:34px; margin-bottom:10px;}
+
+  footer.note{
+    text-align:center;
+    color:var(--muted-2);
+    font-size:12.5px;
+    padding:26px 0 6px;
+  }
+
+  @media (max-width:1100px){
+    .filters-card{grid-template-columns:repeat(2,1fr) auto; }
+    .filters-card .btn-reset{grid-column:1/-1; justify-self:start;}
+  }
+  @media (max-width:640px){
+    .filters-card{grid-template-columns:1fr;}
+    .filters-card .btn-reset{justify-self:stretch;}
+    .btn-reset{width:100%; justify-content:center;}
+    .wrap{padding:16px;}
+    header.topbar{padding:12px 16px;}
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="logo serif"><span class="mark">e-</span>Panta Analysis</div>
+    <div class="dept">AP Agriculture Dept.</div>
+  </div>
+  <div class="top-actions">
+    <a class="btn btn-back" href="epanta_home_page.html">&larr; Back</a>
+    <a class="btn btn-logout" href="AP_Agriculture_Home_Simple.html">Logout</a>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- Filters -->
+  <div class="filters-card">
+    <div class="field">
+      <label><span class="ico">🗓️</span> Year</label>
+      <div class="select-wrap">
+        <select id="fYear"></select>
+      </div>
+    </div>
+    <div class="field">
+      <label><span class="ico">🌱</span> Season</label>
+      <div class="select-wrap">
+        <select id="fSeason"></select>
+      </div>
+    </div>
+    <div class="field">
+      <label><span class="ico">📍</span> District</label>
+      <div class="select-wrap">
+        <select id="fDistrict"></select>
+      </div>
+    </div>
+    <div class="field">
+      <label><span class="ico">🗺️</span> Mandal</label>
+      <div class="select-wrap">
+        <select id="fMandal" disabled>
+          <option>All Mandals</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label><span class="ico">🌾</span> Crop</label>
+      <div class="select-wrap">
+        <select id="fCrop"></select>
+      </div>
+    </div>
+    <button class="btn btn-reset" id="btnReset">↺ Reset Filters</button>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="report"><span class="ico">📄</span> Report Analysis</button>
+
+    <button class="tab-btn" data-tab="crop"><span class="ico">📍</span> Crop-wise Analysis</button>
+  </div>
+
+  <!-- Section head -->
+  <div class="section-head">
+    <div>
+      <h1 class="serif" id="secTitle">All Districts — Kharif 2025</h1>
+      <div class="sub" id="secSub">Comparing Kharif 2024 → Kharif 2025</div>
+    </div>
+    <div class="pill" id="seasonPill">Kharif</div>
+  </div>
+
+  <!-- REPORT TAB -->
+  <div class="tabview" id="view-report">
+    <div class="panel">
+      <div class="panel-head">
+        <h2 id="panelTitle">All Districts — Kharif 2025</h2>
+        <div class="search-box">
+          <input type="text" id="districtSearch" placeholder="Search district...">
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr class="grp">
+              <th class="left" rowspan="2">S.NO</th>
+              <th class="left" rowspan="2">DISTRICT</th>
+              <th colspan="3">EXTENT (ACRES) — <span id="prevLabelExtent">KHARIF 2024</span> &rarr; <span id="curLabelExtent">KHARIF 2025</span></th>
+              <th colspan="3" class="col-sep">FARMERS — <span id="prevLabelFarmers">KHARIF 2024</span> &rarr; <span id="curLabelFarmers">KHARIF 2025</span></th>
+            </tr>
+            <tr class="sub">
+              <th>PREVIOUS</th><th>CURRENT</th><th>CHG%</th>
+              <th class="col-sep">PREVIOUS</th><th>CURRENT</th><th>CHG%</th>
+            </tr>
+          </thead>
+          <tbody id="tblBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- BAR CHART TAB -->
+  <div class="tabview" id="view-bar" style="display:none;">
+    <div class="panel">
+      <div class="panel-body">
+        <div class="chart-controls">
+          <div class="toggle-group" id="metricToggle">
+            <button class="active" data-metric="extent">Extent (Acres)</button>
+            <button data-metric="farmers">Farmers</button>
+          </div>
+          <div class="toggle-group" id="periodToggle">
+            <button class="active" data-period="both">Previous vs Current</button>
+            <button data-period="current">Current only</button>
+          </div>
+        </div>
+        <div class="chart-wrap">
+          <div class="chart-canvas-holder" id="chartHolder">
+            <canvas id="barChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CROP-WISE TAB -->
+  <div class="tabview" id="view-crop" style="display:none;">
+    <div class="panel">
+      <div class="panel-body">
+        <div class="crop-grid" id="cropGrid"></div>
+        <div class="chart-canvas-holder" style="height:360px;">
+          <canvas id="cropChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="note">e-Panta Analysis &middot; Andhra Pradesh Agriculture Department &middot; Data as reported in Department Wise Status Report</footer>
+
+</div>
+
+<script>
+const RAW_DATA = {"Kharif 2023":{"season":"Kharif","year":"2023","districts":[{"sno":1,"district":"SRIKAKULAM","total_mandals":31,"villages":1471,"crops":{"Agriculture":{"mandals_covered":30,"villages_covered":1405,"extent":374396.51,"farmers":248526},"Horticulture":{"mandals_covered":30,"villages_covered":965,"extent":90148.17,"farmers":65712},"Sericulture":{"mandals_covered":8,"villages_covered":21,"extent":54.67,"farmers":45},"Social Forestry":{"mandals_covered":28,"villages_covered":291,"extent":3276.17,"farmers":291}},"total_extent":467875.52,"total_farmers":314574},{"sno":2,"district":"VIZIANAGARAM","total_mandals":27,"villages":983,"crops":{"Agriculture":{"mandals_covered":27,"villages_covered":965,"extent":266226.66,"farmers":169458},"Horticulture":{"mandals_covered":27,"villages_covered":859,"extent":92800.33,"farmers":50515},"Sericulture":{"mandals_covered":12,"villages_covered":21,"extent":58.52,"farmers":35},"Social Forestry":{"mandals_covered":27,"villages_covered":344,"extent":2114.87,"farmers":344}},"total_extent":361200.38,"total_farmers":220352},{"sno":3,"district":"VISAKHAPATNAM","total_mandals":11,"villages":167,"crops":{"Agriculture":{"mandals_covered":4,"villages_covered":76,"extent":11770.96,"farmers":8306},"Horticulture":{"mandals_covered":4,"villages_covered":92,"extent":9877.81,"farmers":6517},"Sericulture":{"mandals_covered":2,"villages_covered":3,"extent":10.85,"farmers":5},"Social Forestry":{"mandals_covered":4,"villages_covered":53,"extent":542.68,"farmers":53}},"total_extent":22202.29,"total_farmers":14881},{"sno":4,"district":"EAST GODAVARI","total_mandals":19,"villages":272,"crops":{"Agriculture":{"mandals_covered":18,"villages_covered":265,"extent":183359.27,"farmers":76631},"Horticulture":{"mandals_covered":18,"villages_covered":253,"extent":138276.08,"farmers":35739},"Sericulture":{"mandals_covered":3,"villages_covered":7,"extent":32.17,"farmers":17},"Social Forestry":{"mandals_covered":15,"villages_covered":62,"extent":1588.42,"farmers":62}},"total_extent":323255.95,"total_farmers":112449},{"sno":5,"district":"WEST GODAVARI","total_mandals":20,"villages":321,"crops":{"Agriculture":{"mandals_covered":20,"villages_covered":305,"extent":211314.92,"farmers":102189},"Horticulture":{"mandals_covered":17,"villages_covered":136,"extent":19096.77,"farmers":6979},"Sericulture":{"mandals_covered":0,"villages_covered":0,"extent":0,"farmers":0},"Social Forestry":{"mandals_covered":3,"villages_covered":5,"extent":33.4,"farmers":5}},"total_extent":230445.08,"total_farmers":109173},{"sno":6,"district":"KRISHNA","total_mandals":26,"villages":519,"crops":{"Agriculture":{"mandals_covered":25,"villages_covered":486,"extent":383137.28,"farmers":152551},"Horticulture":{"mandals_covered":23,"villages_covered":199,"extent":29648.97,"farmers":10085},"Sericulture":{"mandals_covered":1,"villages_covered":1,"extent":40.68,"farmers":22},"Social Forestry":{"mandals_covered":4,"villages_covered":12,"extent":83.03,"farmers":12}},"total_extent":412909.96,"total_farmers":162670},{"sno":7,"district":"GUNTUR","total_mandals":18,"villages":227,"crops":{"Agriculture":{"mandals_covered":18,"villages_covered":201,"extent":190266.39,"farmers":78475},"Horticulture":{"mandals_covered":18,"villages_covered":169,"extent":45293.86,"farmers":21160},"Sericulture":{"mandals_covered":4,"villages_covered":4,"extent":12.93,"farmers":6},"Social Forestry":{"mandals_covered":9,"villages_covered":29,"extent":331.13,"farmers":29}},"total_extent":235904.31,"total_farmers":99670},{"sno":8,"district":"PRAKASAM","total_mandals":38,"villages":865,"crops":{"Agriculture":{"mandals_covered":37,"villages_covered":733,"extent":240183.03,"farmers":95626},"Horticulture":{"mandals_covered":38,"villages_covered":724,"extent":102620.75,"farmers":47873},"Sericulture":{"mandals_covered":18,"villages_covered":41,"extent":259.48,"farmers":118},"Social Forestry":{"mandals_covered":37,"villages_covered":260,"extent":10614.64,"farmers":260}},"total_extent":353677.89,"total_farmers":143877},{"sno":9,"district":"S.P.S.R NELLORE","total_mandals":38,"villages":737,"crops":{"Agriculture":{"mandals_covered":37,"villages_covered":459,"extent":104552.79,"farmers":27946},"Horticulture":{"mandals_covered":37,"villages_covered":513,"extent":56885.04,"farmers":17639},"Sericulture":{"mandals_covered":7,"villages_covered":9,"extent":22.67,"farmers":11},"Social Forestry":{"mandals_covered":35,"villages_covered":302,"extent":15679.98,"farmers":302}},"total_extent":177140.48,"total_farmers":45898},{"sno":10,"district":"CHITTOOR","total_mandals":31,"villages":850,"crops":{"Agriculture":{"mandals_covered":31,"villages_covered":820,"extent":100131.54,"farmers":72415},"Horticulture":{"mandals_covered":31,"villages_covered":808,"extent":136054.96,"farmers":61277},"Sericulture":{"mandals_covered":30,"villages_covered":379,"extent":9022.32,"farmers":5566},"Social Forestry":{"mandals_covered":30,"villages_covered":209,"extent":1181.25,"farmers":209}},"total_extent":246390.07,"total_farmers":139467},{"sno":11,"district":"Y.S.R","total_mandals":36,"villages":735,"crops":{"Agriculture":{"mandals_covered":36,"villages_covered":662,"extent":160572.94,"farmers":69264},"Horticulture":{"mandals_covered":36,"villages_covered":606,"extent":142240.7,"farmers":49100},"Sericulture":{"mandals_covered":15,"villages_covered":21,"extent":82.91,"farmers":36},"Social Forestry":{"mandals_covered":23,"villages_covered":57,"extent":249.58,"farmers":57}},"total_extent":303146.14,"total_farmers":118457},{"sno":12,"district":"ANANTAPUR","total_mandals":31,"villages":504,"crops":{"Agriculture":{"mandals_covered":31,"villages_covered":501,"extent":675307.18,"farmers":195575},"Horticulture":{"mandals_covered":31,"villages_covered":497,"extent":315083.88,"farmers":96094},"Sericulture":{"mandals_covered":22,"villages_covered":73,"extent":1093.25,"farmers":429},"Social Forestry":{"mandals_covered":28,"villages_covered":75,"extent":418.39,"farmers":75}},"total_extent":991902.7,"total_farmers":292173},{"sno":13,"district":"KURNOOL","total_mandals":26,"villages":472,"crops":{"Agriculture":{"mandals_covered":26,"villages_covered":470,"extent":793932.46,"farmers":277002},"Horticulture":{"mandals_covered":26,"villages_covered":469,"extent":222918.17,"farmers":106949},"Sericulture":{"mandals_covered":14,"villages_covered":24,"extent":279.65,"farmers":159},"Social Forestry":{"mandals_covered":22,"villages_covered":49,"extent":268.32,"farmers":49}},"total_extent":1017398.61,"total_farmers":384159},{"sno":14,"district":"PARVATHIPURAM MANYAM","total_mandals":15,"villages":966,"crops":{"Agriculture":{"mandals_covered":15,"villages_covered":937,"extent":200006.01,"farmers":88488},"Horticulture":{"mandals_covered":15,"villages_covered":829,"extent":100905.57,"farmers":38597},"Sericulture":{"mandals_covered":6,"villages_covered":9,"extent":15.09,"farmers":9},"Social Forestry":{"mandals_covered":15,"villages_covered":159,"extent":1397.12,"farmers":159}},"total_extent":302323.78,"total_farmers":127253},{"sno":15,"district":"ALLURI SITHARAMA RAJU","total_mandals":22,"villages":2978,"crops":{"Agriculture":{"mandals_covered":22,"villages_covered":2551,"extent":179420.51,"farmers":61853},"Horticulture":{"mandals_covered":22,"villages_covered":2051,"extent":113695.82,"farmers":51565},"Sericulture":{"mandals_covered":10,"villages_covered":24,"extent":106.95,"farmers":57},"Social Forestry":{"mandals_covered":14,"villages_covered":83,"extent":381.17,"farmers":83}},"total_extent":293604.45,"total_farmers":113558},{"sno":16,"district":"ANAKAPALLI","total_mandals":24,"villages":737,"crops":{"Agriculture":{"mandals_covered":24,"villages_covered":668,"extent":131800.87,"farmers":114982},"Horticulture":{"mandals_covered":24,"villages_covered":635,"extent":106381.2,"farmers":59309},"Sericulture":{"mandals_covered":10,"villages_covered":24,"extent":135.11,"farmers":74},"Social Forestry":{"mandals_covered":24,"villages_covered":458,"extent":11493.08,"farmers":458}},"total_extent":249810.26,"total_farmers":174823},{"sno":17,"district":"KAKINADA","total_mandals":21,"villages":417,"crops":{"Agriculture":{"mandals_covered":21,"villages_covered":372,"extent":212524.91,"farmers":120385},"Horticulture":{"mandals_covered":20,"villages_covered":345,"extent":90580.65,"farmers":35494},"Sericulture":{"mandals_covered":12,"villages_covered":51,"extent":1335.29,"farmers":843},"Social Forestry":{"mandals_covered":14,"villages_covered":94,"extent":3306.8,"farmers":94}},"total_extent":307747.65,"total_farmers":156816},{"sno":18,"district":"DR.B.R.AMBEDKAR KONASEEMA","total_mandals":22,"villages":315,"crops":{"Agriculture":{"mandals_covered":22,"villages_covered":286,"extent":158322.99,"farmers":93555},"Horticulture":{"mandals_covered":22,"villages_covered":268,"extent":102465.83,"farmers":66443},"Sericulture":{"mandals_covered":3,"villages_covered":3,"extent":3.98,"farmers":3},"Social Forestry":{"mandals_covered":4,"villages_covered":10,"extent":305.24,"farmers":10}},"total_extent":261098.03,"total_farmers":160011},{"sno":19,"district":"ELURU","total_mandals":27,"villages":665,"crops":{"Agriculture":{"mandals_covered":27,"villages_covered":543,"extent":213810.55,"farmers":84080},"Horticulture":{"mandals_covered":26,"villages_covered":441,"extent":264865.87,"farmers":49813},"Sericulture":{"mandals_covered":13,"villages_covered":33,"extent":232.62,"farmers":154},"Social Forestry":{"mandals_covered":19,"villages_covered":175,"extent":4200.12,"farmers":175}},"total_extent":483109.16,"total_farmers":134222},{"sno":20,"district":"NTR","total_mandals":20,"villages":326,"crops":{"Agriculture":{"mandals_covered":17,"villages_covered":311,"extent":198483.63,"farmers":76946},"Horticulture":{"mandals_covered":17,"villages_covered":299,"extent":106447.58,"farmers":39791},"Sericulture":{"mandals_covered":3,"villages_covered":5,"extent":17.8,"farmers":10},"Social Forestry":{"mandals_covered":15,"villages_covered":180,"extent":8195.33,"farmers":180}},"total_extent":313144.34,"total_farmers":116927},{"sno":21,"district":"BAPATLA","total_mandals":25,"villages":283,"crops":{"Agriculture":{"mandals_covered":25,"villages_covered":266,"extent":228200.2,"farmers":105616},"Horticulture":{"mandals_covered":25,"villages_covered":182,"extent":30351.23,"farmers":15636},"Sericulture":{"mandals_covered":3,"villages_covered":4,"extent":45.52,"farmers":26},"Social Forestry":{"mandals_covered":13,"villages_covered":74,"extent":3208.12,"farmers":74}},"total_extent":261805.07,"total_farmers":121352},{"sno":22,"district":"PALNADU","total_mandals":28,"villages":370,"crops":{"Agriculture":{"mandals_covered":28,"villages_covered":352,"extent":241255.94,"farmers":111306},"Horticulture":{"mandals_covered":28,"villages_covered":348,"extent":132092.58,"farmers":66437},"Sericulture":{"mandals_covered":7,"villages_covered":8,"extent":18.44,"farmers":8},"Social Forestry":{"mandals_covered":25,"villages_covered":101,"extent":1932.05,"farmers":101}},"total_extent":375299.02,"total_farmers":177852},{"sno":23,"district":"TIRUPATI","total_mandals":34,"villages":1051,"crops":{"Agriculture":{"mandals_covered":34,"villages_covered":765,"extent":75273.4,"farmers":33637},"Horticulture":{"mandals_covered":33,"villages_covered":579,"extent":63356.74,"farmers":23878},"Sericulture":{"mandals_covered":15,"villages_covered":48,"extent":221.99,"farmers":134},"Social Forestry":{"mandals_covered":30,"villages_covered":180,"extent":5976.53,"farmers":180}},"total_extent":144828.67,"total_farmers":57829},{"sno":24,"district":"ANNAMAYYA","total_mandals":30,"villages":471,"crops":{"Agriculture":{"mandals_covered":30,"villages_covered":380,"extent":79032.68,"farmers":54047},"Horticulture":{"mandals_covered":30,"villages_covered":450,"extent":123782.2,"farmers":54245},"Sericulture":{"mandals_covered":25,"villages_covered":116,"extent":1366.31,"farmers":920},"Social Forestry":{"mandals_covered":28,"villages_covered":77,"extent":469.37,"farmers":77}},"total_extent":204650.56,"total_farmers":109289},{"sno":25,"district":"SRI SATHYA SAI","total_mandals":32,"villages":461,"crops":{"Agriculture":{"mandals_covered":32,"villages_covered":456,"extent":286244.76,"farmers":126742},"Horticulture":{"mandals_covered":32,"villages_covered":451,"extent":128222.01,"farmers":52187},"Sericulture":{"mandals_covered":32,"villages_covered":286,"extent":9742.44,"farmers":7024},"Social Forestry":{"mandals_covered":31,"villages_covered":79,"extent":315.23,"farmers":79}},"total_extent":424524.45,"total_farmers":186032},{"sno":26,"district":"NANDYAL","total_mandals":28,"villages":447,"crops":{"Agriculture":{"mandals_covered":28,"villages_covered":439,"extent":458662.2,"farmers":155604},"Horticulture":{"mandals_covered":28,"villages_covered":424,"extent":92880.96,"farmers":36827},"Sericulture":{"mandals_covered":11,"villages_covered":26,"extent":91.27,"farmers":48},"Social Forestry":{"mandals_covered":16,"villages_covered":29,"extent":157.45,"farmers":29}},"total_extent":551791.89,"total_farmers":192508}]},"Rabi 2023":{"season":"Rabi","year":"2023","districts":[{"sno":1,"district":"SRIKAKULAM","total_mandals":31,"villages":1471,"crops":{"Agriculture":{"mandals_covered":30,"villages_covered":1177,"extent":129374.17,"farmers":77972},"Horticulture":{"mandals_covered":22,"villages_covered":199,"extent":1848.89,"farmers":2696},"Sericulture":{"mandals_covered":2,"villages_covered":4,"extent":11.16,"farmers":11},"Social Forestry":{"mandals_covered":5,"villages_covered":18,"extent":62.82,"farmers":18}},"total_extent":131297.05,"total_farmers":80697},{"sno":2,"district":"VIZIANAGARAM","total_mandals":27,"villages":983,"crops":{"Agriculture":{"mandals_covered":27,"villages_covered":915,"extent":95821.34,"farmers":51646},"Horticulture":{"mandals_covered":25,"villages_covered":195,"extent":1043.63,"farmers":1010},"Sericulture":{"mandals_covered":1,"villages_covered":1,"extent":1.43,"farmers":2},"Social Forestry":{"mandals_covered":5,"villages_covered":5,"extent":2.67,"farmers":5}},"total_extent":96869.07,"total_farmers":52663},{"sno":3,"district":"VISAKHAPATNAM","total_mandals":11,"villages":167,"crops":{"Agriculture":{"mandals_covered":4,"villages_covered":58,"extent":4147.01,"farmers":2232},"Horticulture":{"mandals_covered":4,"villages_covered":38,"extent":348.29,"farmers":530},"Sericulture":{"mandals_covered":0,"villages_covered":0,"extent":0,"farmers":0},"Social Forestry":{"mandals_covered":1,"villages_covered":1,"extent":0.52,"farmers":1}},"total_extent":4495.82,"total_farmers":2763},{"sno":4,"district":"EAST GODAVARI","total_mandals":19,"villages":272,"crops":{"Agriculture":{"mandals_covered":18,"villages_covered":261,"extent":173716.84,"farmers":66282},"Horticulture":{"mandals_covered":18,"villages_covered":186,"extent":7884.15,"farmers":2878},"Sericulture":{"mandals_covered":0,"villages_covered":0,"extent":0,"farmers":0},"Social Forestry":{"mandals_covered":5,"villages_covered":5,"extent":26.49,"farmers":5}},"total_extent":181627.49,"total_farmers":69165},{"sno":5,"district":"WEST GODAVARI","total_mandals":20,"villages":321,"crops":{"Agriculture":{"mandals_covered":20,"villages_covered":307,"extent":221983.72,"farmers":103711},"Horticulture":{"mandals_covered":10,"villages_covered":35,"extent":703.14,"farmers":317},"Sericulture":{"mandals_covered":0,"villages_covered":0,"extent":0,"farmers":0},"Social Forestry":{"mandals_covered":0,"villages_covered":0,"extent":0,"farmers":0}},"total_extent":222686.87,"total_farmers":104028},{"sno":6,"district":"KRISHNA","total_mandals":26,"villages":519,"crops":{"Agriculture":{"mandals_covered":25,"villages_covered":475,"extent":300243.51,"farmers":105437},"Horticulture":{"mandals_covered":20,"villages_covered":96,"extent":1376.29,"farmers":927},"Sericulture":{"mandals_covered":0,"villages_covered":0,"extent":0,"farmers":0},"Social Forestry":{"mandals_covered":1,"villages_covered":1,"extent":17.17,"farmers":1}},"total_extent":301636.97,"total_farmers":106365},{"sno":7,"district":"GUNTUR","total_mandals":18,"villages":227,"crops":{"Agriculture":{"mandals_covered":18,"villages_covered":192,"extent":140633.1,"farmers":50781},"Horticulture":{"mandals_covered":18,"villages_covered":124,"extent":16592.98,"farmers":8147},"Sericulture":{"mandals_covered":0,"villages_covered":0,"extent":0,"farmers":0},"Social Forestry":{"mandals_covered":1,"villages_covered":1,"extent":1.3,"farmers":1}},"total_extent":157227.38,"total_farmers":58929},{"sno":8,"district":"PRAKASAM","total_mandals":38,"villages":865,"crops":{"Agriculture":{"mandals_covered":38,"villages_covered":786,"extent":277602.34,"farmers":84134},"Horticulture":{"mandals_covered":38,"villages_covered":614,"extent":20840.49,"farmers":10609},"Sericulture":{"mandals_covered":9,"villages_covered":11,"extent":49.17,"farmers":20},"Social Forestry":{"mandals_covered":27,"villages_covered":78,"extent":2724.96,"farmers":78}},"total_extent":301216.97,"total_farmers":94841},{"sno":9,"district":"S.P.S.R NELLORE","total_mandals":38,"villages":737,"crops":{"Agriculture":{"mandals_covered":37,"villages_covered":670,"extent":286813.89,"farmers":70261},"Horticulture":{"mandals_covered":37,"villages_covered":344,"extent":9636.3,"farmers":3909},"Sericulture":{"mandals_covered":6,"villages_covered":9,"extent":49.02,"farmers":17},"Social Forestry":{"mandals_covered":17,"villages_covered":35,"extent":585.24,"farmers":35}},"total_extent":297084.44,"total_farmers":74222},{"sno":10,"district":"CHITTOOR","total_mandals":31,"villages":850,"crops":{"Agriculture":{"mandals_covered":31,"villages_covered":780,"extent":47905.81,"farmers":33279},"Horticulture":{"mandals_covered":31,"villages_covered":618,"extent":8035.39,"farmers":9066},"Sericulture":{"mandals_covered":21,"villages_covered":125,"extent":834.03,"farmers":523},"Social Forestry":{"mandals_covered":11,"villages_covered":16,"extent":46.4,"farmers":16}},"total_extent":56821.62,"total_farmers":42884},{"sno":11,"district":"Y.S.R","total_mandals":36,"villages":735,"crops":{"Agriculture":{"mandals_covered":36,"villages_covered":657,"extent":303851.05,"farmers":96571},"Horticulture":{"mandals_covered":35,"villages_covered":400,"extent":12261.19,"farmers":6093},"Sericulture":{"mandals_covered":10,"villages_covered":13,"extent":53.38,"farmers":20},"Social Forestry":{"mandals_covered":5,"villages_covered":5,"extent":14.46,"farmers":5}},"total_extent":316180.08,"total_farmers":102689},{"sno":12,"district":"ANANTAPUR","total_mandals":31,"villages":504,"crops":{"Agriculture":{"mandals_covered":31,"villages_covered":491,"extent":203891.57,"farmers":52766},"Horticulture":{"mandals_covered":30,"villages_covered":348,"extent":7985.47,"farmers":3189},"Sericulture":{"mandals_covered":4,"villages_covered":8,"extent":38.52,"farmers":16},"Social Forestry":{"mandals_covered":2,"villages_covered":2,"extent":6.59,"farmers":2}},"total_extent":211922.14,"total_farmers":55973},{"sno":13,"district":"KURNOOL","total_mandals":26,"villages":472,"crops":{"Agriculture":{"mandals_covered":26,"villages_covered":441,"extent":220964.16,"farmers":66859},"Horticulture":{"mandals_covered":25,"villages_covered":276,"extent":12294.41,"farmers":7222},"Sericulture":{"mandals_covered":1,"villages_covered":1,"extent":4,"farmers":3},"Social Forestry":{"mandals_covered":3,"villages_covered":4,"extent":8.33,"farmers":4}},"total_extent":233270.9,"total_farmers":74088},{"sno":14,"district":"PARVATHIPURAM MANYAM","total_mandals":15,"villages":966,"crops":{"Agriculture":{"mandals_covered":15,"villages_covered":502,"extent":31452.79,"farmers":11565},"Horticulture":{"mandals_covered":11,"villages_covered":40,"extent":174.6,"farmers":112},"Sericulture":{"mandals_covered":1,"villages_covered":1,"extent":0.2,"farmers":1},"Social Forestry":{"mandals_covered":1,"villages_covered":1,"extent":10,"farmers":1}},"total_extent":31637.59,"total_farmers":11679},{"sno":15,"district":"ALLURI SITHARAMA RAJU","total_mandals":22,"villages":2978,"crops":{"Agriculture":{"mandals_covered":22,"villages_covered":1110,"extent":35423.61,"farmers":18247},"Horticulture":{"mandals_covered":11,"villages_covered":116,"extent":2226.4,"farmers":991},"Sericulture":{"mandals_covered":1,"villages_covered":1,"extent":7,"farmers":3},"Social Forestry":{"mandals_covered":0,"villages_covered":0,"extent":0,"farmers":0}},"total_extent":37657.02,"total_farmers":19241},{"sno":16,"district":"ANAKAPALLI","total_mandals":24,"villages":737,"crops":{"Agriculture":{"mandals_covered":24,"villages_covered":585,"extent":37538.46,"farmers":25771},"Horticulture":{"mandals_covered":23,"villages_covered":229,"extent":2329.68,"farmers":3403},"Sericulture":{"mandals_covered":2,"villages_covered":2,"extent":2.01,"farmers":2},"Social Forestry":{"mandals_covered":6,"villages_covered":9,"extent":18.82,"farmers":9}},"total_extent":39888.96,"total_farmers":29185},{"sno":17,"district":"KAKINADA","total_mandals":21,"villages":417,"crops":{"Agriculture":{"mandals_covered":21,"villages_covered":348,"extent":179452.97,"farmers":98733},"Horticulture":{"mandals_covered":18,"villages_covered":121,"extent":1871.77,"farmers":1334},"Sericulture":{"mandals_covered":1,"villages_covered":2,"extent":10.46,"farmers":8},"Social Forestry":{"mandals_covered":5,"villages_covered":7,"extent":19.55,"farmers":7}},"total_extent":181354.76,"total_farmers":100082},{"sno":18,"district":"DR.B.R.AMBEDKAR KONASEEMA","total_mandals":22,"villages":315,"crops":{"Agriculture":{"mandals_covered":22,"villages_covered":294,"extent":170787.9,"farmers":96689},"Horticulture":{"mandals_covered":17,"villages_covered":100,"extent":2471.15,"farmers":1439},"Sericulture":{"mandals_covered":0,"villages_covered":0,"extent":0,"farmers":0},"Social Forestry":{"mandals_covered":0,"villages_covered":0,"extent":0,"farmers":0}},"total_extent":173259.05,"total_farmers":98128},{"sno":19,"district":"ELURU","total_mandals":28,"villages":665,"crops":{"Agriculture":{"mandals_covered":28,"villages_covered":504,"extent":201438.65,"farmers":65153},"Horticulture":{"mandals_covered":23,"villages_covered":256,"extent":5100.12,"farmers":2153},"Sericulture":{"mandals_covered":2,"villages_covered":2,"extent":5.38,"farmers":2},"Social Forestry":{"mandals_covered":2,"villages_covered":4,"extent":24.16,"farmers":4}},"total_extent":206568.3,"total_farmers":67312},{"sno":20,"district":"NTR","total_mandals":20,"villages":326,"crops":{"Agriculture":{"mandals_covered":17,"villages_covered":289,"extent":49296.2,"farmers":15678},"Horticulture":{"mandals_covered":16,"villages_covered":105,"extent":547.68,"farmers":290},"Sericulture":{"mandals_covered":1,"villages_covered":1,"extent":1.03,"farmers":1},"Social Forestry":{"mandals_covered":3,"villages_covered":3,"extent":9,"farmers":3}},"total_extent":49853.91,"total_farmers":15972},{"sno":21,"district":"BAPATLA","total_mandals":25,"villages":283,"crops":{"Agriculture":{"mandals_covered":25,"villages_covered":277,"extent":275322.59,"farmers":102352},"Horticulture":{"mandals_covered":23,"villages_covered":158,"extent":16879.72,"farmers":9290},"Sericulture":{"mandals_covered":0,"villages_covered":0,"extent":0,"farmers":0},"Social Forestry":{"mandals_covered":6,"villages_covered":13,"extent":126.95,"farmers":13}},"total_extent":292329.26,"total_farmers":111655},{"sno":22,"district":"PALNADU","total_mandals":28,"villages":370,"crops":{"Agriculture":{"mandals_covered":28,"villages_covered":324,"extent":91925.06,"farmers":29512},"Horticulture":{"mandals_covered":27,"villages_covered":163,"extent":5044.81,"farmers":2658},"Sericulture":{"mandals_covered":1,"villages_covered":1,"extent":4.71,"farmers":1},"Social Forestry":{"mandals_covered":5,"villages_covered":20,"extent":385.65,"farmers":20}},"total_extent":97360.24,"total_farmers":32191},{"sno":23,"district":"TIRUPATI","total_mandals":34,"villages":1051,"crops":{"Agriculture":{"mandals_covered":34,"villages_covered":967,"extent":199500.09,"farmers":69653},"Horticulture":{"mandals_covered":33,"villages_covered":268,"extent":3172.22,"farmers":2306},"Sericulture":{"mandals_covered":6,"villages_covered":9,"extent":30.89,"farmers":20},"Social Forestry":{"mandals_covered":8,"villages_covered":16,"extent":165.93,"farmers":16}},"total_extent":202869.14,"total_farmers":71995},{"sno":24,"district":"ANNAMAYYA","total_mandals":30,"villages":471,"crops":{"Agriculture":{"mandals_covered":30,"villages_covered":377,"extent":39231.3,"farmers":23948},"Horticulture":{"mandals_covered":30,"villages_covered":372,"extent":14455.64,"farmers":8070},"Sericulture":{"mandals_covered":18,"villages_covered":26,"extent":63.92,"farmers":38},"Social Forestry":{"mandals_covered":4,"villages_covered":4,"extent":5.78,"farmers":4}},"total_extent":53756.64,"total_farmers":32060},{"sno":25,"district":"SRI SATHYA SAI","total_mandals":32,"villages":461,"crops":{"Agriculture":{"mandals_covered":32,"villages_covered":432,"extent":63466.97,"farmers":30478},"Horticulture":{"mandals_covered":32,"villages_covered":341,"extent":6836.44,"farmers":4014},"Sericulture":{"mandals_covered":17,"villages_covered":58,"extent":179.19,"farmers":149},"Social Forestry":{"mandals_covered":0,"villages_covered":0,"extent":0,"farmers":0}},"total_extent":70482.6,"total_farmers":34641},{"sno":26,"district":"NANDYAL","total_mandals":28,"villages":447,"crops":{"Agriculture":{"mandals_covered":28,"villages_covered":437,"extent":331741.47,"farmers":93321},"Horticulture":{"mandals_covered":28,"villages_covered":245,"extent":7833.4,"farmers":3804},"Sericulture":{"mandals_covered":3,"villages_covered":3,"extent":10.88,"farmers":4},"Social Forestry":{"mandals_covered":4,"villages_covered":4,"extent":52.6,"farmers":4}},"total_extent":339638.35,"total_farmers":97133}]},"Kharif 2024":{"season":"Kharif","year":"2024","districts":[{"sno":1,"district":"SRIKAKULAM","total_mandals":30,"villages":1469,"crops":{"Agriculture":{"mandals_covered":30,"villages_covered":1410,"extent":383288.91,"farmers":264995},"Horticulture":{"mandals_covered":30,"villages_covered":940,"extent":89170.52,"farmers":67622},"Sericulture":{"mandals_covered":9,"villages_covered":20,"extent":65.26,"farmers":52},"Social Forestry":{"mandals_covered":27,"villages_covered":253,"extent":2965.47,"farmers":253}},"total_extent":475490.16,"total_farmers":332922},{"sno":2,"district":"VIZIANAGARAM","total_mandals":27,"villages":983,"crops":{"Agriculture":{"mandals_covered":27,"villages_covered":960,"extent":268878.52,"farmers":163088},"Horticulture":{"mandals_covered":27,"villages_covered":833,"extent":93320.36,"farmers":46527},"Sericulture":{"mandals_covered":13,"villages_covered":22,"extent":66.13,"farmers":38},"Social Forestry":{"mandals_covered":27,"villages_covered":308,"extent":2305.37,"farmers":308}},"total_extent":364570.37,"total_farmers":209961},{"sno":3,"district":"VISAKHAPATNAM","total_mandals":11,"villages":167,"crops":{"Agriculture":{"mandals_covered":4,"villages_covered":82,"extent":11042.08,"farmers":9387},"Horticulture":{"mandals_covered":4,"villages_covered":95,"extent":10102.87,"farmers":7867},"Sericulture":{"mandals_covered":4,"villages_covered":7,"extent":23.68,"farmers":9},"Social Forestry":{"mandals_covered":4,"villages_covered":38,"extent":592.88,"farmers":38}},"total_extent":21761.52,"total_farmers":17301},{"sno":4,"district":"EAST GODAVARI","total_mandals":19,"villages":272,"crops":{"Agriculture":{"mandals_covered":18,"villages_covered":265,"extent":186134.98,"farmers":77864},"Horticulture":{"mandals_covered":18,"villages_covered":246,"extent":144869.77,"farmers":34921},"Sericulture":{"mandals_covered":4,"villages_covered":7,"extent":47.28,"farmers":16},"Social Forestry":{"mandals_covered":14,"villages_covered":48,"extent":1053.46,"farmers":48}},"total_extent":332105.48,"total_farmers":112849},{"sno":5,"district":"WEST GODAVARI","total_mandals":20,"villages":321,"crops":{"Agriculture":{"mandals_covered":20,"villages_covered":306,"extent":205544.96,"farmers":97740},"Horticulture":{"mandals_covered":16,"villages_covered":121,"extent":21060.98,"farmers":6182},"Sericulture":{"mandals_covered":1,"villages_covered":1,"extent":5.1,"farmers":1},"Social Forestry":{"mandals_covered":2,"villages_covered":2,"extent":2.16,"farmers":2}},"total_extent":226613.21,"total_farmers":103925},{"sno":6,"district":"KRISHNA","total_mandals":26,"villages":508,"crops":{"Agriculture":{"mandals_covered":26,"villages_covered":482,"extent":385550.77,"farmers":162738},"Horticulture":{"mandals_covered":23,"villages_covered":201,"extent":32112.65,"farmers":11884},"Sericulture":{"mandals_covered":2,"villages_covered":2,"extent":126.25,"farmers":144},"Social Forestry":{"mandals_covered":3,"villages_covered":9,"extent":88.06,"farmers":9}},"total_extent":417877.73,"total_farmers":174775},{"sno":7,"district":"GUNTUR","total_mandals":18,"villages":227,"crops":{"Agriculture":{"mandals_covered":18,"villages_covered":202,"extent":201823.71,"farmers":79684},"Horticulture":{"mandals_covered":18,"villages_covered":156,"extent":22781.84,"farmers":11571},"Sericulture":{"mandals_covered":3,"villages_covered":3,"extent":12.85,"farmers":6},"Social Forestry":{"mandals_covered":8,"villages_covered":22,"extent":194.91,"farmers":22}},"total_extent":224813.31,"total_farmers":91283},{"sno":8,"district":"PRAKASAM","total_mandals":38,"villages":865,"crops":{"Agriculture":{"mandals_covered":38,"villages_covered":766,"extent":295802.87,"farmers":110059},"Horticulture":{"mandals_covered":38,"villages_covered":672,"extent":82734.57,"farmers":38141},"Sericulture":{"mandals_covered":18,"villages_covered":43,"extent":270.27,"farmers":118},"Social Forestry":{"mandals_covered":36,"villages_covered":274,"extent":14682.18,"farmers":274}},"total_extent":393489.89,"total_farmers":148592},{"sno":9,"district":"S.P.S.R NELLORE","total_mandals":38,"villages":737,"crops":{"Agriculture":{"mandals_covered":37,"villages_covered":439,"extent":51234.19,"farmers":15277},"Horticulture":{"mandals_covered":37,"villages_covered":532,"extent":60439.84,"farmers":18120},"Sericulture":{"mandals_covered":10,"villages_covered":20,"extent":96.68,"farmers":34},"Social Forestry":{"mandals_covered":35,"villages_covered":251,"extent":15058.15,"farmers":251}},"total_extent":126828.86,"total_farmers":33682},{"sno":10,"district":"CHITTOOR","total_mandals":31,"villages":846,"crops":{"Agriculture":{"mandals_covered":31,"villages_covered":832,"extent":108629.02,"farmers":77197},"Horticulture":{"mandals_covered":31,"villages_covered":806,"extent":135572.74,"farmers":60560},"Sericulture":{"mandals_covered":30,"villages_covered":405,"extent":10990.09,"farmers":6394},"Social Forestry":{"mandals_covered":30,"villages_covered":195,"extent":1183.24,"farmers":195}},"total_extent":256375.09,"total_farmers":144346},{"sno":11,"district":"Y.S.R","total_mandals":36,"villages":735,"crops":{"Agriculture":{"mandals_covered":36,"villages_covered":662,"extent":167677.95,"farmers":71131},"Horticulture":{"mandals_covered":36,"villages_covered":572,"extent":135399.67,"farmers":46647},"Sericulture":{"mandals_covered":20,"villages_covered":37,"extent":181.61,"farmers":77},"Social Forestry":{"mandals_covered":24,"villages_covered":52,"extent":280.12,"farmers":52}},"total_extent":303539.35,"total_farmers":117907},{"sno":12,"district":"ANANTAPUR","total_mandals":32,"villages":506,"crops":{"Agriculture":{"mandals_covered":32,"villages_covered":501,"extent":792188.33,"farmers":230172},"Horticulture":{"mandals_covered":32,"villages_covered":494,"extent":260185.38,"farmers":81511},"Sericulture":{"mandals_covered":20,"villages_covered":61,"extent":1093.1,"farmers":443},"Social Forestry":{"mandals_covered":27,"villages_covered":68,"extent":371.13,"farmers":68}},"total_extent":1053837.93,"total_farmers":312194},{"sno":13,"district":"KURNOOL","total_mandals":26,"villages":472,"crops":{"Agriculture":{"mandals_covered":26,"villages_covered":470,"extent":888264.34,"farmers":304688},"Horticulture":{"mandals_covered":26,"villages_covered":468,"extent":166265.27,"farmers":84774},"Sericulture":{"mandals_covered":14,"villages_covered":23,"extent":148.41,"farmers":87},"Social Forestry":{"mandals_covered":22,"villages_covered":53,"extent":272.45,"farmers":53}},"total_extent":1054950.48,"total_farmers":389602},{"sno":14,"district":"PARVATHIPURAM MANYAM","total_mandals":15,"villages":966,"crops":{"Agriculture":{"mandals_covered":15,"villages_covered":947,"extent":210148.13,"farmers":92997},"Horticulture":{"mandals_covered":15,"villages_covered":814,"extent":97687.61,"farmers":37289},"Sericulture":{"mandals_covered":5,"villages_covered":10,"extent":21.71,"farmers":11},"Social Forestry":{"mandals_covered":15,"villages_covered":161,"extent":1601.02,"farmers":161}},"total_extent":309458.46,"total_farmers":130458},{"sno":15,"district":"ALLURI SITHARAMA RAJU","total_mandals":22,"villages":2977,"crops":{"Agriculture":{"mandals_covered":22,"villages_covered":2535,"extent":187910.5,"farmers":74718},"Horticulture":{"mandals_covered":20,"villages_covered":1951,"extent":118281.84,"farmers":55641},"Sericulture":{"mandals_covered":14,"villages_covered":56,"extent":264.81,"farmers":136},"Social Forestry":{"mandals_covered":15,"villages_covered":75,"extent":419.17,"farmers":75}},"total_extent":306876.32,"total_farmers":130570},{"sno":16,"district":"ANAKAPALLI","total_mandals":24,"villages":737,"crops":{"Agriculture":{"mandals_covered":24,"villages_covered":673,"extent":155953.31,"farmers":144859},"Horticulture":{"mandals_covered":24,"villages_covered":633,"extent":108215.45,"farmers":64435},"Sericulture":{"mandals_covered":10,"villages_covered":22,"extent":153.67,"farmers":80},"Social Forestry":{"mandals_covered":24,"villages_covered":493,"extent":16769.94,"farmers":493}},"total_extent":281092.37,"total_farmers":209867},{"sno":17,"district":"KAKINADA","total_mandals":21,"villages":417,"crops":{"Agriculture":{"mandals_covered":21,"villages_covered":383,"extent":221501.35,"farmers":131040},"Horticulture":{"mandals_covered":20,"villages_covered":353,"extent":96682.97,"farmers":36888},"Sericulture":{"mandals_covered":12,"villages_covered":45,"extent":1246.26,"farmers":468},"Social Forestry":{"mandals_covered":13,"villages_covered":102,"extent":4582.91,"farmers":102}},"total_extent":324013.49,"total_farmers":168498},{"sno":18,"district":"DR.B.R.AMBEDKAR KONASEEMA","total_mandals":22,"villages":315,"crops":{"Agriculture":{"mandals_covered":22,"villages_covered":287,"extent":157705.05,"farmers":92352},"Horticulture":{"mandals_covered":22,"villages_covered":270,"extent":104478.49,"farmers":65949},"Sericulture":{"mandals_covered":2,"villages_covered":2,"extent":8.2,"farmers":3},"Social Forestry":{"mandals_covered":4,"villages_covered":8,"extent":233.63,"farmers":8}},"total_extent":262425.37,"total_farmers":158312},{"sno":19,"district":"ELURU","total_mandals":28,"villages":646,"crops":{"Agriculture":{"mandals_covered":28,"villages_covered":540,"extent":211710.92,"farmers":82532},"Horticulture":{"mandals_covered":25,"villages_covered":444,"extent":275181.1,"farmers":51003},"Sericulture":{"mandals_covered":11,"villages_covered":36,"extent":244.76,"farmers":141},"Social Forestry":{"mandals_covered":19,"villages_covered":140,"extent":3125.87,"farmers":140}},"total_extent":490262.65,"total_farmers":133816},{"sno":20,"district":"NTR","total_mandals":20,"villages":326,"crops":{"Agriculture":{"mandals_covered":17,"villages_covered":311,"extent":223813.98,"farmers":88738},"Horticulture":{"mandals_covered":17,"villages_covered":297,"extent":88445.96,"farmers":32741},"Sericulture":{"mandals_covered":4,"villages_covered":5,"extent":31,"farmers":14},"Social Forestry":{"mandals_covered":16,"villages_covered":202,"extent":10937.68,"farmers":202}},"total_extent":323228.62,"total_farmers":121695},{"sno":21,"district":"BAPATLA","total_mandals":25,"villages":283,"crops":{"Agriculture":{"mandals_covered":25,"villages_covered":264,"extent":237834.16,"farmers":113208},"Horticulture":{"mandals_covered":25,"villages_covered":166,"extent":24531.08,"farmers":13580},"Sericulture":{"mandals_covered":4,"villages_covered":4,"extent":34.36,"farmers":17},"Social Forestry":{"mandals_covered":13,"villages_covered":75,"extent":5256.42,"farmers":75}},"total_extent":267656.02,"total_farmers":126880},{"sno":22,"district":"PALNADU","total_mandals":28,"villages":371,"crops":{"Agriculture":{"mandals_covered":28,"villages_covered":355,"extent":324089.66,"farmers":134249},"Horticulture":{"mandals_covered":28,"villages_covered":339,"extent":107779.4,"farmers":55902},"Sericulture":{"mandals_covered":13,"villages_covered":15,"extent":69.36,"farmers":20},"Social Forestry":{"mandals_covered":26,"villages_covered":111,"extent":3572.73,"farmers":111}},"total_extent":435511.15,"total_farmers":190282},{"sno":23,"district":"TIRUPATI","total_mandals":34,"villages":1051,"crops":{"Agriculture":{"mandals_covered":34,"villages_covered":703,"extent":63401.68,"farmers":26867},"Horticulture":{"mandals_covered":33,"villages_covered":585,"extent":65938.52,"farmers":24528},"Sericulture":{"mandals_covered":15,"villages_covered":61,"extent":316.98,"farmers":175},"Social Forestry":{"mandals_covered":30,"villages_covered":184,"extent":5819.19,"farmers":184}},"total_extent":135476.37,"total_farmers":51754},{"sno":24,"district":"ANNAMAYYA","total_mandals":30,"villages":471,"crops":{"Agriculture":{"mandals_covered":30,"villages_covered":385,"extent":79727.76,"farmers":55761},"Horticulture":{"mandals_covered":30,"villages_covered":448,"extent":118967.9,"farmers":52073},"Sericulture":{"mandals_covered":26,"villages_covered":109,"extent":1401.68,"farmers":998},"Social Forestry":{"mandals_covered":29,"villages_covered":75,"extent":459.37,"farmers":75}},"total_extent":200556.71,"total_farmers":108907},{"sno":25,"district":"SRI SATHYA SAI","total_mandals":32,"villages":461,"crops":{"Agriculture":{"mandals_covered":32,"villages_covered":458,"extent":373121.03,"farmers":159951},"Horticulture":{"mandals_covered":32,"villages_covered":453,"extent":128985.87,"farmers":52167},"Sericulture":{"mandals_covered":32,"villages_covered":285,"extent":10564.67,"farmers":7230},"Social Forestry":{"mandals_covered":29,"villages_covered":84,"extent":457.43,"farmers":84}},"total_extent":513128.99,"total_farmers":219432},{"sno":26,"district":"NANDYAL","total_mandals":28,"villages":447,"crops":{"Agriculture":{"mandals_covered":28,"villages_covered":441,"extent":507174.57,"farmers":168808},"Horticulture":{"mandals_covered":28,"villages_covered":404,"extent":69237.67,"farmers":28016},"Sericulture":{"mandals_covered":9,"villages_covered":18,"extent":64.23,"farmers":29},"Social Forestry":{"mandals_covered":18,"villages_covered":36,"extent":234.27,"farmers":36}},"total_extent":576710.74,"total_farmers":196889}]},"Rabi 2024":{"season":"Rabi","year":"2024","districts":[{"sno":1,"district":"SRIKAKULAM","total_mandals":30,"villages":1469,"crops":{"Agriculture":{"mandals_covered":30,"villages_covered":1149,"extent":127339.46,"farmers":77417},"Horticulture":{"mandals_covered":22,"villages_covered":164,"extent":1482.11,"farmers":2298},"Sericulture":{"mandals_covered":7,"villages_covered":11,"extent":25.85,"farmers":16},"Social Forestry":{"mandals_covered":8,"villages_covered":25,"extent":141.41,"farmers":25}},"total_extent":128988.84,"total_farmers":79756},{"sno":2,"district":"VIZIANAGARAM","total_mandals":27,"villages":983,"crops":{"Agriculture":{"mandals_covered":27,"villages_covered":918,"extent":101272.5,"farmers":58670},"Horticulture":{"mandals_covered":27,"villages_covered":228,"extent":1554.26,"farmers":1373},"Sericulture":{"mandals_covered":4,"villages_covered":7,"extent":15.5,"farmers":7},"Social Forestry":{"mandals_covered":6,"villages_covered":12,"extent":26.35,"farmers":12}},"total_extent":102868.62,"total_farmers":60062},{"sno":3,"district":"VISAKHAPATNAM","total_mandals":11,"villages":167,"crops":{"Agriculture":{"mandals_covered":4,"villages_covered":63,"extent":4062.86,"farmers":2623},"Horticulture":{"mandals_covered":4,"villages_covered":38,"extent":273.65,"farmers":465},"Sericulture":{"mandals_covered":1,"villages_covered":1,"extent":0.58,"farmers":1},"Social Forestry":{"mandals_covered":1,"villages_covered":2,"extent":0.23,"farmers":2}},"total_extent":4337.31,"total_farmers":3091},{"sno":4,"district":"EAST GODAVARI","total_mandals":19,"villages":272,"crops":{"Agriculture":{"mandals_covered":18,"villages_covered":260,"extent":178790.03,"farmers":64889},"Horticulture":{"mandals_covered":18,"villages_covered":162,"extent":5372.89,"farmers":2150},"Sericulture":{"mandals_covered":0,"villages_covered":0,"extent":0,"farmers":0},"Social Forestry":{"mandals_covered":0,"villages_covered":0,"extent":0,"farmers":0}},"total_extent":184162.92,"total_farmers":67039},{"sno":5,"district":"WEST GODAVARI","total_mandals":20,"villages":321,"crops":{"Agriculture":{"mandals_covered":20,"villages_covered":309,"extent":220587.66,"farmers":99178},"Horticulture":{"mandals_covered":12,"villages_covered":37,"extent":752.97,"farmers":548},"Sericulture":{"mandals_covered":0,"villages_covered":0,"extent":0,"farmers":0},"Social Forestry":{"mandals_covered":0,"villages_covered":0,"extent":0,"farmers":0}},"total_extent":221340.64,"total_farmers":99726},{"sno":6,"district":"KRISHNA","total_mandals":26,"villages":508,"crops":{"Agriculture":{"mandals_covered":26,"villages_covered":475,"extent":315370.82,"farmers":128300},"Horticulture":{"mandals_covered":22,"villages_covered":120,"extent":1524.25,"farmers":1057},"Sericulture":{"mandals_covered":1,"villages_covered":1,"extent":0.92,"farmers":3},"Social Forestry":{"mandals_covered":2,"villages_covered":3,"extent":14.8,"farmers":3}},"total_extent":316910.8,"total_farmers":129363},{"sno":7,"district":"GUNTUR","total_mandals":18,"villages":227,"crops":{"Agriculture":{"mandals_covered":18,"villages_covered":198,"extent":159439.16,"farmers":58962},"Horticulture":{"mandals_covered":18,"villages_covered":127,"extent":19131.41,"farmers":9553},"Sericulture":{"mandals_covered":1,"villages_covered":2,"extent":3.48,"farmers":2},"Social Forestry":{"mandals_covered":2,"villages_covered":2,"extent":3.95,"farmers":2}},"total_extent":178577.99,"total_farmers":68519},{"sno":8,"district":"PRAKASAM","total_mandals":38,"villages":865,"crops":{"Agriculture":{"mandals_covered":38,"villages_covered":773,"extent":274811.7,"farmers":85783},"Horticulture":{"mandals_covered":38,"villages_covered":546,"extent":14072.86,"farmers":7409},"Sericulture":{"mandals_covered":15,"villages_covered":28,"extent":180.54,"farmers":66},"Social Forestry":{"mandals_covered":24,"villages_covered":122,"extent":5441.93,"farmers":122}},"total_extent":294507.03,"total_farmers":93380},{"sno":9,"district":"S.P.S.R NELLORE","total_mandals":38,"villages":737,"crops":{"Agriculture":{"mandals_covered":37,"villages_covered":672,"extent":327183.6,"farmers":84997},"Horticulture":{"mandals_covered":36,"villages_covered":291,"extent":6729.12,"farmers":2655},"Sericulture":{"mandals_covered":5,"villages_covered":7,"extent":27.21,"farmers":11},"Social Forestry":{"mandals_covered":25,"villages_covered":90,"extent":4095.27,"farmers":90}},"total_extent":338035.2,"total_farmers":87753},{"sno":10,"district":"CHITTOOR","total_mandals":31,"villages":846,"crops":{"Agriculture":{"mandals_covered":31,"villages_covered":786,"extent":60931.37,"farmers":36063},"Horticulture":{"mandals_covered":31,"villages_covered":528,"extent":8385,"farmers":6440},"Sericulture":{"mandals_covered":23,"villages_covered":150,"extent":902.82,"farmers":599},"Social Forestry":{"mandals_covered":12,"villages_covered":22,"extent":89.93,"farmers":22}},"total_extent":70309.12,"total_farmers":43124},{"sno":11,"district":"Y.S.R","total_mandals":36,"villages":735,"crops":{"Agriculture":{"mandals_covered":36,"villages_covered":642,"extent":300495.28,"farmers":86698},"Horticulture":{"mandals_covered":35,"villages_covered":281,"extent":5684.28,"farmers":2802},"Sericulture":{"mandals_covered":10,"villages_covered":12,"extent":41.07,"farmers":15},"Social Forestry":{"mandals_covered":3,"villages_covered":3,"extent":26.78,"farmers":3}},"total_extent":306247.41,"total_farmers":89518},{"sno":12,"district":"ANANTAPUR","total_mandals":32,"villages":506,"crops":{"Agriculture":{"mandals_covered":32,"villages_covered":489,"extent":198747.08,"farmers":50921},"Horticulture":{"mandals_covered":32,"villages_covered":341,"extent":7044.19,"farmers":2703},"Sericulture":{"mandals_covered":8,"villages_covered":21,"extent":130.71,"farmers":50},"Social Forestry":{"mandals_covered":1,"villages_covered":1,"extent":1.87,"farmers":1}},"total_extent":205923.85,"total_farmers":53675},{"sno":13,"district":"KURNOOL","total_mandals":26,"villages":472,"crops":{"Agriculture":{"mandals_covered":26,"villages_covered":446,"extent":201529.26,"farmers":64090},"Horticulture":{"mandals_covered":26,"villages_covered":301,"extent":12962.3,"farmers":7487},"Sericulture":{"mandals_covered":5,"villages_covered":6,"extent":21.09,"farmers":11},"Social Forestry":{"mandals_covered":3,"villages_covered":4,"extent":7.67,"farmers":4}},"total_extent":214520.32,"total_farmers":71592},{"sno":14,"district":"PARVATHIPURAM MANYAM","total_mandals":15,"villages":966,"crops":{"Agriculture":{"mandals_covered":15,"villages_covered":549,"extent":37447.84,"farmers":14063},"Horticulture":{"mandals_covered":13,"villages_covered":46,"extent":368.2,"farmers":137},"Sericulture":{"mandals_covered":1,"villages_covered":1,"extent":4.15,"farmers":2},"Social Forestry":{"mandals_covered":1,"villages_covered":1,"extent":1.5,"farmers":1}},"total_extent":37821.69,"total_farmers":14203},{"sno":15,"district":"ALLURI SITHARAMA RAJU","total_mandals":22,"villages":2977,"crops":{"Agriculture":{"mandals_covered":22,"villages_covered":1097,"extent":39553.31,"farmers":19148},"Horticulture":{"mandals_covered":11,"villages_covered":106,"extent":1493.25,"farmers":734},"Sericulture":{"mandals_covered":4,"villages_covered":4,"extent":6.64,"farmers":4},"Social Forestry":{"mandals_covered":0,"villages_covered":0,"extent":0,"farmers":0}},"total_extent":41053.19,"total_farmers":19886},{"sno":16,"district":"ANAKAPALLI","total_mandals":24,"villages":737,"crops":{"Agriculture":{"mandals_covered":24,"villages_covered":583,"extent":38687.96,"farmers":28051},"Horticulture":{"mandals_covered":23,"villages_covered":202,"extent":1930.81,"farmers":2801},"Sericulture":{"mandals_covered":3,"villages_covered":3,"extent":6.11,"farmers":4},"Social Forestry":{"mandals_covered":12,"villages_covered":26,"extent":105.41,"farmers":26}},"total_extent":40730.29,"total_farmers":30882},{"sno":17,"district":"KAKINADA","total_mandals":21,"villages":417,"crops":{"Agriculture":{"mandals_covered":21,"villages_covered":359,"extent":182896.69,"farmers":100500},"Horticulture":{"mandals_covered":18,"villages_covered":108,"extent":1677.69,"farmers":1196},"Sericulture":{"mandals_covered":4,"villages_covered":5,"extent":32.69,"farmers":15},"Social Forestry":{"mandals_covered":3,"villages_covered":11,"extent":275.38,"farmers":11}},"total_extent":184882.46,"total_farmers":101722},{"sno":18,"district":"DR.B.R.AMBEDKAR KONASEEMA","total_mandals":22,"villages":315,"crops":{"Agriculture":{"mandals_covered":22,"villages_covered":290,"extent":165951.2,"farmers":92489},"Horticulture":{"mandals_covered":17,"villages_covered":60,"extent":868,"farmers":741},"Sericulture":{"mandals_covered":0,"villages_covered":0,"extent":0,"farmers":0},"Social Forestry":{"mandals_covered":0,"villages_covered":0,"extent":0,"farmers":0}},"total_extent":166819.2,"total_farmers":93230},{"sno":19,"district":"ELURU","total_mandals":28,"villages":646,"crops":{"Agriculture":{"mandals_covered":28,"villages_covered":500,"extent":193998.06,"farmers":62357},"Horticulture":{"mandals_covered":24,"villages_covered":250,"extent":6154.7,"farmers":2366},"Sericulture":{"mandals_covered":7,"villages_covered":7,"extent":16.27,"farmers":8},"Social Forestry":{"mandals_covered":5,"villages_covered":10,"extent":173.1,"farmers":10}},"total_extent":200342.13,"total_farmers":64741},{"sno":20,"district":"NTR","total_mandals":20,"villages":326,"crops":{"Agriculture":{"mandals_covered":17,"villages_covered":287,"extent":84724.76,"farmers":28107},"Horticulture":{"mandals_covered":16,"villages_covered":127,"extent":1142.2,"farmers":534},"Sericulture":{"mandals_covered":2,"villages_covered":2,"extent":5.5,"farmers":2},"Social Forestry":{"mandals_covered":6,"villages_covered":10,"extent":23.4,"farmers":10}},"total_extent":85895.86,"total_farmers":28653},{"sno":21,"district":"BAPATLA","total_mandals":25,"villages":283,"crops":{"Agriculture":{"mandals_covered":25,"villages_covered":278,"extent":305907.66,"farmers":116580},"Horticulture":{"mandals_covered":22,"villages_covered":141,"extent":11238.51,"farmers":6388},"Sericulture":{"mandals_covered":2,"villages_covered":3,"extent":24.32,"farmers":12},"Social Forestry":{"mandals_covered":8,"villages_covered":57,"extent":3925.44,"farmers":57}},"total_extent":321095.92,"total_farmers":123037},{"sno":22,"district":"PALNADU","total_mandals":28,"villages":371,"crops":{"Agriculture":{"mandals_covered":28,"villages_covered":333,"extent":142123.84,"farmers":44601},"Horticulture":{"mandals_covered":27,"villages_covered":214,"extent":11764.24,"farmers":4685},"Sericulture":{"mandals_covered":3,"villages_covered":3,"extent":10.97,"farmers":6},"Social Forestry":{"mandals_covered":14,"villages_covered":52,"extent":5306.63,"farmers":52}},"total_extent":159205.68,"total_farmers":49344},{"sno":23,"district":"TIRUPATI","total_mandals":34,"villages":1051,"crops":{"Agriculture":{"mandals_covered":34,"villages_covered":961,"extent":200462.82,"farmers":69033},"Horticulture":{"mandals_covered":32,"villages_covered":229,"extent":2537.03,"farmers":1390},"Sericulture":{"mandals_covered":5,"villages_covered":8,"extent":29.1,"farmers":17},"Social Forestry":{"mandals_covered":17,"villages_covered":36,"extent":365.38,"farmers":36}},"total_extent":203394.33,"total_farmers":70476},{"sno":24,"district":"ANNAMAYYA","total_mandals":30,"villages":471,"crops":{"Agriculture":{"mandals_covered":30,"villages_covered":376,"extent":109463.14,"farmers":48816},"Horticulture":{"mandals_covered":30,"villages_covered":361,"extent":15396.73,"farmers":7575},"Sericulture":{"mandals_covered":17,"villages_covered":38,"extent":119.53,"farmers":65},"Social Forestry":{"mandals_covered":6,"villages_covered":6,"extent":21.17,"farmers":6}},"total_extent":125000.56,"total_farmers":56462},{"sno":25,"district":"SRI SATHYA SAI","total_mandals":32,"villages":461,"crops":{"Agriculture":{"mandals_covered":32,"villages_covered":428,"extent":74279.4,"farmers":31756},"Horticulture":{"mandals_covered":32,"villages_covered":338,"extent":8115.45,"farmers":4166},"Sericulture":{"mandals_covered":28,"villages_covered":152,"extent":741.33,"farmers":454},"Social Forestry":{"mandals_covered":4,"villages_covered":4,"extent":8.7,"farmers":4}},"total_extent":83144.88,"total_farmers":36380},{"sno":26,"district":"NANDYAL","total_mandals":28,"villages":447,"crops":{"Agriculture":{"mandals_covered":28,"villages_covered":437,"extent":382831.35,"farmers":108923},"Horticulture":{"mandals_covered":27,"villages_covered":221,"extent":8390.14,"farmers":3903},"Sericulture":{"mandals_covered":5,"villages_covered":6,"extent":26.77,"farmers":11},"Social Forestry":{"mandals_covered":2,"villages_covered":2,"extent":5.15,"farmers":2}},"total_extent":391253.42,"total_farmers":112839}]},"Kharif 2025":{"season":"Kharif","year":"2025","districts":[{"sno":1,"district":"SRIKAKULAM","total_mandals":30,"villages":1464,"crops":{"Agriculture":{"mandals_covered":30,"villages_covered":1412,"extent":447117.81,"farmers":332429},"Horticulture":{"mandals_covered":30,"villages_covered":905,"extent":113827,"farmers":86379},"Sericulture":{"mandals_covered":10,"villages_covered":24,"extent":70.2,"farmers":54},"Social Forestry":{"mandals_covered":25,"villages_covered":235,"extent":6535.43,"farmers":235}},"total_extent":567550.44,"total_farmers":419097},{"sno":2,"district":"VIZIANAGARAM","total_mandals":28,"villages":976,"crops":{"Agriculture":{"mandals_covered":27,"villages_covered":964,"extent":344394.56,"farmers":250695},"Horticulture":{"mandals_covered":27,"villages_covered":841,"extent":124151.01,"farmers":79926},"Sericulture":{"mandals_covered":11,"villages_covered":18,"extent":55.43,"farmers":28},"Social Forestry":{"mandals_covered":27,"villages_covered":369,"extent":8826.11,"farmers":369}},"total_extent":477427.11,"total_farmers":331018},{"sno":3,"district":"VISAKHAPATNAM","total_mandals":8,"villages":120,"crops":{"Agriculture":{"mandals_covered":6,"villages_covered":80,"extent":12705.33,"farmers":10727},"Horticulture":{"mandals_covered":7,"villages_covered":104,"extent":11164.82,"farmers":8996},"Sericulture":{"mandals_covered":3,"villages_covered":6,"extent":16.6,"farmers":8},"Social Forestry":{"mandals_covered":5,"villages_covered":59,"extent":995.16,"farmers":59}},"total_extent":24881.91,"total_farmers":19790},{"sno":4,"district":"EAST GODAVARI","total_mandals":19,"villages":271,"crops":{"Agriculture":{"mandals_covered":18,"villages_covered":266,"extent":210739.55,"farmers":93550},"Horticulture":{"mandals_covered":18,"villages_covered":256,"extent":169967.08,"farmers":50362},"Sericulture":{"mandals_covered":4,"villages_covered":5,"extent":33.33,"farmers":7},"Social Forestry":{"mandals_covered":15,"villages_covered":53,"extent":1598.05,"farmers":53}},"total_extent":382338.02,"total_farmers":143972},{"sno":5,"district":"WEST GODAVARI","total_mandals":20,"villages":314,"crops":{"Agriculture":{"mandals_covered":20,"villages_covered":305,"extent":222537.25,"farmers":112712},"Horticulture":{"mandals_covered":20,"villages_covered":148,"extent":25229.36,"farmers":13716},"Sericulture":{"mandals_covered":0,"villages_covered":0,"extent":0,"farmers":0},"Social Forestry":{"mandals_covered":4,"villages_covered":6,"extent":695.88,"farmers":6}},"total_extent":248462.49,"total_farmers":126434},{"sno":6,"district":"KRISHNA","total_mandals":26,"villages":495,"crops":{"Agriculture":{"mandals_covered":26,"villages_covered":484,"extent":416053.77,"farmers":189110},"Horticulture":{"mandals_covered":23,"villages_covered":208,"extent":32900.22,"farmers":13075},"Sericulture":{"mandals_covered":2,"villages_covered":2,"extent":13.63,"farmers":20},"Social Forestry":{"mandals_covered":7,"villages_covered":12,"extent":314.01,"farmers":12}},"total_extent":449281.63,"total_farmers":202217},{"sno":7,"district":"GUNTUR","total_mandals":18,"villages":208,"crops":{"Agriculture":{"mandals_covered":18,"villages_covered":206,"extent":237626.66,"farmers":109065},"Horticulture":{"mandals_covered":18,"villages_covered":151,"extent":24417.99,"farmers":15455},"Sericulture":{"mandals_covered":5,"villages_covered":5,"extent":17.87,"farmers":7},"Social Forestry":{"mandals_covered":10,"villages_covered":23,"extent":231.04,"farmers":23}},"total_extent":262293.57,"total_farmers":124550},{"sno":8,"district":"PRAKASAM","total_mandals":39,"villages":826,"crops":{"Agriculture":{"mandals_covered":39,"villages_covered":774,"extent":374895.36,"farmers":145072},"Horticulture":{"mandals_covered":39,"villages_covered":635,"extent":76643.19,"farmers":35640},"Sericulture":{"mandals_covered":18,"villages_covered":45,"extent":458.56,"farmers":168},"Social Forestry":{"mandals_covered":39,"villages_covered":492,"extent":60087.58,"farmers":492}},"total_extent":512084.69,"total_farmers":181372},{"sno":9,"district":"S.P.S.R NELLORE","total_mandals":38,"villages":726,"crops":{"Agriculture":{"mandals_covered":37,"villages_covered":564,"extent":166205.79,"farmers":52502},"Horticulture":{"mandals_covered":37,"villages_covered":509,"extent":76603.39,"farmers":24346},"Sericulture":{"mandals_covered":11,"villages_covered":19,"extent":111.77,"farmers":37},"Social Forestry":{"mandals_covered":36,"villages_covered":346,"extent":50242.38,"farmers":346}},"total_extent":293163.33,"total_farmers":77231},{"sno":10,"district":"CHITTOOR","total_mandals":32,"villages":846,"crops":{"Agriculture":{"mandals_covered":32,"villages_covered":822,"extent":114381.82,"farmers":98519},"Horticulture":{"mandals_covered":32,"villages_covered":793,"extent":200020.42,"farmers":85987},"Sericulture":{"mandals_covered":31,"villages_covered":384,"extent":12548.14,"farmers":7514},"Social Forestry":{"mandals_covered":30,"villages_covered":261,"extent":3270.7,"farmers":261}},"total_extent":330221.09,"total_farmers":192281},{"sno":11,"district":"Y.S.R","total_mandals":36,"villages":734,"crops":{"Agriculture":{"mandals_covered":36,"villages_covered":662,"extent":141518.54,"farmers":68964},"Horticulture":{"mandals_covered":36,"villages_covered":566,"extent":147369.18,"farmers":50681},"Sericulture":{"mandals_covered":23,"villages_covered":44,"extent":296.73,"farmers":92},"Social Forestry":{"mandals_covered":27,"villages_covered":71,"extent":678.13,"farmers":71}},"total_extent":289862.59,"total_farmers":119808},{"sno":12,"district":"ANANTAPUR","total_mandals":32,"villages":502,"crops":{"Agriculture":{"mandals_covered":32,"villages_covered":500,"extent":903737.44,"farmers":252264},"Horticulture":{"mandals_covered":32,"villages_covered":494,"extent":275867.32,"farmers":82658},"Sericulture":{"mandals_covered":18,"villages_covered":59,"extent":1310.16,"farmers":490},"Social Forestry":{"mandals_covered":27,"villages_covered":91,"extent":739.48,"farmers":91}},"total_extent":1181654.4,"total_farmers":335503},{"sno":13,"district":"KURNOOL","total_mandals":26,"villages":472,"crops":{"Agriculture":{"mandals_covered":26,"villages_covered":470,"extent":1015679.19,"farmers":335790},"Horticulture":{"mandals_covered":26,"villages_covered":462,"extent":134081.34,"farmers":66791},"Sericulture":{"mandals_covered":12,"villages_covered":25,"extent":160.44,"farmers":70},"Social Forestry":{"mandals_covered":21,"villages_covered":58,"extent":428.65,"farmers":58}},"total_extent":1150349.61,"total_farmers":402709},{"sno":14,"district":"PARVATHIPURAM MANYAM","total_mandals":15,"villages":958,"crops":{"Agriculture":{"mandals_covered":15,"villages_covered":932,"extent":237107.2,"farmers":111325},"Horticulture":{"mandals_covered":15,"villages_covered":821,"extent":117646.22,"farmers":41941},"Sericulture":{"mandals_covered":4,"villages_covered":12,"extent":31.41,"farmers":14},"Social Forestry":{"mandals_covered":15,"villages_covered":154,"extent":2107.16,"farmers":154}},"total_extent":356892,"total_farmers":153434},{"sno":15,"district":"ALLURI SITHARAMA RAJU","total_mandals":22,"villages":2962,"crops":{"Agriculture":{"mandals_covered":22,"villages_covered":2711,"extent":229885.24,"farmers":90817},"Horticulture":{"mandals_covered":21,"villages_covered":2159,"extent":210758.17,"farmers":87837},"Sericulture":{"mandals_covered":11,"villages_covered":66,"extent":346.95,"farmers":168},"Social Forestry":{"mandals_covered":15,"villages_covered":99,"extent":1947.95,"farmers":99}},"total_extent":442938.31,"total_farmers":178921},{"sno":16,"district":"ANAKAPALLI","total_mandals":24,"villages":716,"crops":{"Agriculture":{"mandals_covered":24,"villages_covered":669,"extent":175208.41,"farmers":170789},"Horticulture":{"mandals_covered":24,"villages_covered":639,"extent":142690.43,"farmers":88042},"Sericulture":{"mandals_covered":7,"villages_covered":16,"extent":151.72,"farmers":92},"Social Forestry":{"mandals_covered":24,"villages_covered":528,"extent":35017.99,"farmers":528}},"total_extent":353068.55,"total_farmers":259451},{"sno":17,"district":"KAKINADA","total_mandals":21,"villages":408,"crops":{"Agriculture":{"mandals_covered":21,"villages_covered":379,"extent":247820.93,"farmers":170232},"Horticulture":{"mandals_covered":20,"villages_covered":355,"extent":123123.54,"farmers":62995},"Sericulture":{"mandals_covered":9,"villages_covered":23,"extent":650.1,"farmers":455},"Social Forestry":{"mandals_covered":13,"villages_covered":128,"extent":14639.44,"farmers":128}},"total_extent":386234.01,"total_farmers":233810},{"sno":18,"district":"DR.B.R.AMBEDKAR KONASEEMA","total_mandals":22,"villages":315,"crops":{"Agriculture":{"mandals_covered":22,"villages_covered":281,"extent":169416.46,"farmers":105454},"Horticulture":{"mandals_covered":22,"villages_covered":280,"extent":116526.25,"farmers":103052},"Sericulture":{"mandals_covered":1,"villages_covered":1,"extent":5.12,"farmers":6},"Social Forestry":{"mandals_covered":4,"villages_covered":11,"extent":1621.09,"farmers":11}},"total_extent":287568.92,"total_farmers":208523},{"sno":19,"district":"ELURU","total_mandals":28,"villages":566,"crops":{"Agriculture":{"mandals_covered":28,"villages_covered":532,"extent":229297.86,"farmers":94237},"Horticulture":{"mandals_covered":24,"villages_covered":450,"extent":313715.59,"farmers":69811},"Sericulture":{"mandals_covered":11,"villages_covered":23,"extent":126.38,"farmers":77},"Social Forestry":{"mandals_covered":19,"villages_covered":137,"extent":4494.94,"farmers":137}},"total_extent":547634.76,"total_farmers":164262},{"sno":20,"district":"NTR","total_mandals":17,"villages":311,"crops":{"Agriculture":{"mandals_covered":17,"villages_covered":311,"extent":264791.8,"farmers":110074},"Horticulture":{"mandals_covered":17,"villages_covered":288,"extent":89809.11,"farmers":32299},"Sericulture":{"mandals_covered":5,"villages_covered":5,"extent":18.43,"farmers":12},"Social Forestry":{"mandals_covered":15,"villages_covered":243,"extent":70144.14,"farmers":243}},"total_extent":424763.49,"total_farmers":142628},{"sno":21,"district":"BAPATLA","total_mandals":25,"villages":282,"crops":{"Agriculture":{"mandals_covered":25,"villages_covered":268,"extent":315759.09,"farmers":166355},"Horticulture":{"mandals_covered":25,"villages_covered":160,"extent":23376.87,"farmers":13193},"Sericulture":{"mandals_covered":5,"villages_covered":7,"extent":46.1,"farmers":22},"Social Forestry":{"mandals_covered":16,"villages_covered":85,"extent":17543.35,"farmers":85}},"total_extent":356725.4,"total_farmers":179655},{"sno":22,"district":"PALNADU","total_mandals":28,"villages":366,"crops":{"Agriculture":{"mandals_covered":28,"villages_covered":356,"extent":542298.04,"farmers":218170},"Horticulture":{"mandals_covered":28,"villages_covered":340,"extent":122729.69,"farmers":70529},"Sericulture":{"mandals_covered":11,"villages_covered":12,"extent":73.69,"farmers":29},"Social Forestry":{"mandals_covered":25,"villages_covered":161,"extent":26320.94,"farmers":161}},"total_extent":691422.36,"total_farmers":288889},{"sno":23,"district":"TIRUPATI","total_mandals":34,"villages":899,"crops":{"Agriculture":{"mandals_covered":34,"villages_covered":781,"extent":97506.33,"farmers":52886},"Horticulture":{"mandals_covered":33,"villages_covered":516,"extent":73202.11,"farmers":29430},"Sericulture":{"mandals_covered":13,"villages_covered":44,"extent":193.95,"farmers":105},"Social Forestry":{"mandals_covered":30,"villages_covered":211,"extent":9843.98,"farmers":211}},"total_extent":180746.37,"total_farmers":82632},{"sno":24,"district":"ANNAMAYYA","total_mandals":30,"villages":460,"crops":{"Agriculture":{"mandals_covered":30,"villages_covered":389,"extent":61778.85,"farmers":45560},"Horticulture":{"mandals_covered":30,"villages_covered":450,"extent":178996.01,"farmers":73091},"Sericulture":{"mandals_covered":27,"villages_covered":97,"extent":1347.68,"farmers":878},"Social Forestry":{"mandals_covered":29,"villages_covered":74,"extent":573.56,"farmers":74}},"total_extent":242696.09,"total_farmers":119603},{"sno":25,"district":"SRI SATHYA SAI","total_mandals":32,"villages":461,"crops":{"Agriculture":{"mandals_covered":32,"villages_covered":454,"extent":381643.94,"farmers":154900},"Horticulture":{"mandals_covered":32,"villages_covered":452,"extent":146087.65,"farmers":54231},"Sericulture":{"mandals_covered":32,"villages_covered":264,"extent":9689.36,"farmers":6425},"Social Forestry":{"mandals_covered":32,"villages_covered":127,"extent":1175.34,"farmers":127}},"total_extent":538596.28,"total_farmers":215683},{"sno":26,"district":"NANDYAL","total_mandals":29,"villages":441,"crops":{"Agriculture":{"mandals_covered":29,"villages_covered":441,"extent":690987.5,"farmers":232866},"Horticulture":{"mandals_covered":29,"villages_covered":392,"extent":68462.57,"farmers":27931},"Sericulture":{"mandals_covered":9,"villages_covered":17,"extent":62.92,"farmers":30},"Social Forestry":{"mandals_covered":24,"villages_covered":50,"extent":365.03,"farmers":50}},"total_extent":759878.02,"total_farmers":260877}]},"Rabi 2025":{"season":"Rabi","year":"2025","districts":[{"sno":1,"district":"SRIKAKULAM","total_mandals":30,"villages":1464,"crops":{"Agriculture":{"mandals_covered":30,"villages_covered":1267,"extent":236899.77,"farmers":216190},"Horticulture":{"mandals_covered":29,"villages_covered":393,"extent":7591.47,"farmers":9864},"Sericulture":{"mandals_covered":2,"villages_covered":3,"extent":9.01,"farmers":2},"Social Forestry":{"mandals_covered":20,"villages_covered":116,"extent":2414.33,"farmers":116}},"total_extent":246914.58,"total_farmers":226172},{"sno":2,"district":"VIZIANAGARAM","total_mandals":28,"villages":976,"crops":{"Agriculture":{"mandals_covered":27,"villages_covered":922,"extent":223539,"farmers":207852},"Horticulture":{"mandals_covered":27,"villages_covered":447,"extent":8267.26,"farmers":10179},"Sericulture":{"mandals_covered":2,"villages_covered":2,"extent":7.08,"farmers":4},"Social Forestry":{"mandals_covered":26,"villages_covered":192,"extent":1481.76,"farmers":192}},"total_extent":233295.1,"total_farmers":218227},{"sno":3,"district":"VISAKHAPATNAM","total_mandals":8,"villages":120,"crops":{"Agriculture":{"mandals_covered":4,"villages_covered":61,"extent":6073.47,"farmers":6551},"Horticulture":{"mandals_covered":4,"villages_covered":53,"extent":1006.92,"farmers":2178},"Sericulture":{"mandals_covered":1,"villages_covered":1,"extent":0.74,"farmers":1},"Social Forestry":{"mandals_covered":4,"villages_covered":26,"extent":108.17,"farmers":26}},"total_extent":7189.31,"total_farmers":8756},{"sno":4,"district":"EAST GODAVARI","total_mandals":19,"villages":271,"crops":{"Agriculture":{"mandals_covered":18,"villages_covered":261,"extent":224428.78,"farmers":96534},"Horticulture":{"mandals_covered":18,"villages_covered":233,"extent":36195.67,"farmers":19247},"Sericulture":{"mandals_covered":2,"villages_covered":2,"extent":8.51,"farmers":2},"Social Forestry":{"mandals_covered":10,"villages_covered":26,"extent":455.21,"farmers":26}},"total_extent":261088.18,"total_farmers":115809},{"sno":5,"district":"WEST GODAVARI","total_mandals":20,"villages":314,"crops":{"Agriculture":{"mandals_covered":20,"villages_covered":310,"extent":231969.8,"farmers":118194},"Horticulture":{"mandals_covered":18,"villages_covered":143,"extent":5874.97,"farmers":6210},"Sericulture":{"mandals_covered":1,"villages_covered":1,"extent":2.22,"farmers":1},"Social Forestry":{"mandals_covered":6,"villages_covered":8,"extent":507.01,"farmers":8}},"total_extent":238354,"total_farmers":124413},{"sno":6,"district":"KRISHNA","total_mandals":26,"villages":495,"crops":{"Agriculture":{"mandals_covered":26,"villages_covered":484,"extent":401697.96,"farmers":205865},"Horticulture":{"mandals_covered":23,"villages_covered":148,"extent":6349.46,"farmers":3733},"Sericulture":{"mandals_covered":0,"villages_covered":0,"extent":0,"farmers":0},"Social Forestry":{"mandals_covered":6,"villages_covered":9,"extent":156.39,"farmers":9}},"total_extent":408203.81,"total_farmers":209607},{"sno":7,"district":"GUNTUR","total_mandals":18,"villages":208,"crops":{"Agriculture":{"mandals_covered":18,"villages_covered":200,"extent":235292.13,"farmers":113566},"Horticulture":{"mandals_covered":18,"villages_covered":136,"extent":13872.16,"farmers":9083},"Sericulture":{"mandals_covered":0,"villages_covered":0,"extent":0,"farmers":0},"Social Forestry":{"mandals_covered":5,"villages_covered":10,"extent":17.13,"farmers":10}},"total_extent":249181.42,"total_farmers":122659},{"sno":8,"district":"PRAKASAM","total_mandals":39,"villages":826,"crops":{"Agriculture":{"mandals_covered":39,"villages_covered":773,"extent":444256.32,"farmers":182690},"Horticulture":{"mandals_covered":39,"villages_covered":521,"extent":19430.93,"farmers":11193},"Sericulture":{"mandals_covered":12,"villages_covered":19,"extent":147.96,"farmers":54},"Social Forestry":{"mandals_covered":36,"villages_covered":311,"extent":31573.74,"farmers":311}},"total_extent":495408.96,"total_farmers":194248},{"sno":9,"district":"S.P.S.R NELLORE","total_mandals":38,"villages":726,"crops":{"Agriculture":{"mandals_covered":38,"villages_covered":672,"extent":449025.79,"farmers":150342},"Horticulture":{"mandals_covered":37,"villages_covered":397,"extent":14289.11,"farmers":5762},"Sericulture":{"mandals_covered":6,"villages_covered":8,"extent":36.26,"farmers":12},"Social Forestry":{"mandals_covered":33,"villages_covered":238,"extent":15030.72,"farmers":238}},"total_extent":478381.87,"total_farmers":156354},{"sno":10,"district":"CHITTOOR","total_mandals":32,"villages":846,"crops":{"Agriculture":{"mandals_covered":32,"villages_covered":811,"extent":69859.56,"farmers":66586},"Horticulture":{"mandals_covered":32,"villages_covered":707,"extent":28095.11,"farmers":19178},"Sericulture":{"mandals_covered":25,"villages_covered":196,"extent":1445.89,"farmers":1282},"Social Forestry":{"mandals_covered":21,"villages_covered":122,"extent":661.77,"farmers":122}},"total_extent":100062.34,"total_farmers":87168},{"sno":11,"district":"Y.S.R","total_mandals":36,"villages":734,"crops":{"Agriculture":{"mandals_covered":36,"villages_covered":672,"extent":439813.36,"farmers":152109},"Horticulture":{"mandals_covered":36,"villages_covered":455,"extent":31714.93,"farmers":14842},"Sericulture":{"mandals_covered":9,"villages_covered":10,"extent":34.23,"farmers":16},"Social Forestry":{"mandals_covered":22,"villages_covered":49,"extent":658.44,"farmers":49}},"total_extent":472220.96,"total_farmers":167016},{"sno":12,"district":"ANANTAPUR","total_mandals":32,"villages":502,"crops":{"Agriculture":{"mandals_covered":32,"villages_covered":495,"extent":365095.4,"farmers":102969},"Horticulture":{"mandals_covered":32,"villages_covered":395,"extent":28648.38,"farmers":10344},"Sericulture":{"mandals_covered":15,"villages_covered":28,"extent":166.76,"farmers":66},"Social Forestry":{"mandals_covered":9,"villages_covered":11,"extent":56.15,"farmers":11}},"total_extent":393966.69,"total_farmers":113390},{"sno":13,"district":"KURNOOL","total_mandals":26,"villages":472,"crops":{"Agriculture":{"mandals_covered":26,"villages_covered":465,"extent":400829.64,"farmers":138569},"Horticulture":{"mandals_covered":26,"villages_covered":375,"extent":32593.87,"farmers":17833},"Sericulture":{"mandals_covered":6,"villages_covered":10,"extent":41.74,"farmers":18},"Social Forestry":{"mandals_covered":18,"villages_covered":23,"extent":221.21,"farmers":23}},"total_extent":433686.46,"total_farmers":156443},{"sno":14,"district":"PARVATHIPURAM MANYAM","total_mandals":15,"villages":958,"crops":{"Agriculture":{"mandals_covered":15,"villages_covered":563,"extent":75182.38,"farmers":50546},"Horticulture":{"mandals_covered":13,"villages_covered":128,"extent":2186.97,"farmers":1195},"Sericulture":{"mandals_covered":0,"villages_covered":0,"extent":0,"farmers":0},"Social Forestry":{"mandals_covered":9,"villages_covered":36,"extent":129.05,"farmers":36}},"total_extent":77498.4,"total_farmers":51777},{"sno":15,"district":"ALLURI SITHARAMA RAJU","total_mandals":22,"villages":2962,"crops":{"Agriculture":{"mandals_covered":22,"villages_covered":1008,"extent":66864,"farmers":36272},"Horticulture":{"mandals_covered":19,"villages_covered":129,"extent":3428.37,"farmers":1524},"Sericulture":{"mandals_covered":1,"villages_covered":2,"extent":5.9,"farmers":2},"Social Forestry":{"mandals_covered":5,"villages_covered":17,"extent":302.58,"farmers":17}},"total_extent":70600.85,"total_farmers":37815},{"sno":16,"district":"ANAKAPALLI","total_mandals":24,"villages":716,"crops":{"Agriculture":{"mandals_covered":24,"villages_covered":578,"extent":80802.65,"farmers":99433},"Horticulture":{"mandals_covered":24,"villages_covered":386,"extent":8612.47,"farmers":10268},"Sericulture":{"mandals_covered":2,"villages_covered":4,"extent":17.22,"farmers":25},"Social Forestry":{"mandals_covered":24,"villages_covered":306,"extent":5713.8,"farmers":306}},"total_extent":95146.14,"total_farmers":110032},{"sno":17,"district":"KAKINADA","total_mandals":21,"villages":408,"crops":{"Agriculture":{"mandals_covered":21,"villages_covered":355,"extent":223234.94,"farmers":152222},"Horticulture":{"mandals_covered":20,"villages_covered":230,"extent":11994.69,"farmers":8201},"Sericulture":{"mandals_covered":3,"villages_covered":5,"extent":28.77,"farmers":26},"Social Forestry":{"mandals_covered":12,"villages_covered":77,"extent":3758.72,"farmers":77}},"total_extent":239017.12,"total_farmers":160526},{"sno":18,"district":"DR.B.R.AMBEDKAR KONASEEMA","total_mandals":22,"villages":315,"crops":{"Agriculture":{"mandals_covered":22,"villages_covered":290,"extent":180904,"farmers":113538},"Horticulture":{"mandals_covered":22,"villages_covered":204,"extent":9109.92,"farmers":11871},"Sericulture":{"mandals_covered":0,"villages_covered":0,"extent":0,"farmers":0},"Social Forestry":{"mandals_covered":2,"villages_covered":2,"extent":3.42,"farmers":2}},"total_extent":190017.35,"total_farmers":125411},{"sno":19,"district":"ELURU","total_mandals":28,"villages":566,"crops":{"Agriculture":{"mandals_covered":28,"villages_covered":501,"extent":266621.29,"farmers":113688},"Horticulture":{"mandals_covered":24,"villages_covered":373,"extent":64647.46,"farmers":23250},"Sericulture":{"mandals_covered":4,"villages_covered":5,"extent":18.02,"farmers":13},"Social Forestry":{"mandals_covered":17,"villages_covered":88,"extent":2171.58,"farmers":88}},"total_extent":333458.36,"total_farmers":137039},{"sno":20,"district":"NTR","total_mandals":17,"villages":311,"crops":{"Agriculture":{"mandals_covered":17,"villages_covered":306,"extent":173431.7,"farmers":69249},"Horticulture":{"mandals_covered":16,"villages_covered":217,"extent":9622.65,"farmers":4318},"Sericulture":{"mandals_covered":1,"villages_covered":1,"extent":0.23,"farmers":1},"Social Forestry":{"mandals_covered":15,"villages_covered":102,"extent":2220.83,"farmers":102}},"total_extent":185275.41,"total_farmers":73670},{"sno":21,"district":"BAPATLA","total_mandals":25,"villages":282,"crops":{"Agriculture":{"mandals_covered":25,"villages_covered":277,"extent":455587.12,"farmers":225209},"Horticulture":{"mandals_covered":24,"villages_covered":164,"extent":13677.43,"farmers":9587},"Sericulture":{"mandals_covered":4,"villages_covered":4,"extent":34.9,"farmers":17},"Social Forestry":{"mandals_covered":12,"villages_covered":74,"extent":5822.48,"farmers":74}},"total_extent":475121.93,"total_farmers":234887},{"sno":22,"district":"PALNADU","total_mandals":28,"villages":366,"crops":{"Agriculture":{"mandals_covered":28,"villages_covered":353,"extent":323109.06,"farmers":136326},"Horticulture":{"mandals_covered":28,"villages_covered":200,"extent":5459.8,"farmers":3111},"Sericulture":{"mandals_covered":0,"villages_covered":0,"extent":0,"farmers":0},"Social Forestry":{"mandals_covered":18,"villages_covered":73,"extent":2888.56,"farmers":73}},"total_extent":331457.42,"total_farmers":139510},{"sno":23,"district":"TIRUPATI","total_mandals":34,"villages":899,"crops":{"Agriculture":{"mandals_covered":34,"villages_covered":976,"extent":295179.88,"farmers":133756},"Horticulture":{"mandals_covered":33,"villages_covered":364,"extent":13595.79,"farmers":7259},"Sericulture":{"mandals_covered":12,"villages_covered":19,"extent":40.24,"farmers":32},"Social Forestry":{"mandals_covered":27,"villages_covered":152,"extent":3408.15,"farmers":152}},"total_extent":312224.06,"total_farmers":141199},{"sno":24,"district":"ANNAMAYYA","total_mandals":30,"villages":460,"crops":{"Agriculture":{"mandals_covered":30,"villages_covered":374,"extent":95150.25,"farmers":57455},"Horticulture":{"mandals_covered":30,"villages_covered":372,"extent":28338.27,"farmers":15515},"Sericulture":{"mandals_covered":25,"villages_covered":55,"extent":209.99,"farmers":114},"Social Forestry":{"mandals_covered":14,"villages_covered":16,"extent":45.22,"farmers":16}},"total_extent":123743.73,"total_farmers":73100},{"sno":25,"district":"SRI SATHYA SAI","total_mandals":32,"villages":461,"crops":{"Agriculture":{"mandals_covered":32,"villages_covered":450,"extent":130308.68,"farmers":60371},"Horticulture":{"mandals_covered":32,"villages_covered":420,"extent":19816.08,"farmers":10070},"Sericulture":{"mandals_covered":31,"villages_covered":176,"extent":1932.7,"farmers":1470},"Social Forestry":{"mandals_covered":18,"villages_covered":22,"extent":101.42,"farmers":22}},"total_extent":152158.88,"total_farmers":71933},{"sno":26,"district":"NANDYAL","total_mandals":29,"villages":441,"crops":{"Agriculture":{"mandals_covered":29,"villages_covered":438,"extent":739122.92,"farmers":232940},"Horticulture":{"mandals_covered":29,"villages_covered":321,"extent":16105.44,"farmers":8166},"Sericulture":{"mandals_covered":4,"villages_covered":4,"extent":18.7,"farmers":4},"Social Forestry":{"mandals_covered":16,"villages_covered":23,"extent":134.09,"farmers":23}},"total_extent":755381.15,"total_farmers":241133}]}}
+;
+
+// ---------- District display formatting ----------
+function titleCase(s){
+  return s.replace(/\w\S*/g, t => t.charAt(0).toUpperCase() + t.substr(1).toLowerCase())
+    .replace(/\bY\.s\.r\b/i,'Y.S.R')
+    .replace(/\bS\.p\.s\.r\b/i,'S.P.S.R')
+    .replace(/\bDr\.b\.r\./i,'Dr.B.R.');
+}
+
+const CROP_COLORS = {
+  'Agriculture':'#1a8a4d',
+  'Horticulture':'#d7a84f',
+  'Sericulture':'#7c5cbf',
+  'Social Forestry':'#3b7dd8'
+};
+const CROP_LIST = ['Agriculture','Horticulture','Sericulture','Social Forestry'];
+
+// ---------- State ----------
+const seasons = ['Kharif','Rabi'];
+const years = Array.from(new Set(Object.values(RAW_DATA).map(d=>d.year))).sort();
+
+let state = {
+  year: '2025',
+  season: 'Kharif',
+  district: 'All',
+  crop: 'All'
+};
+
+// ---------- Populate filter selects ----------
+const fYear = document.getElementById('fYear');
+years.forEach(y=>{
+  const o = document.createElement('option'); o.value=y; o.textContent=y;
+  fYear.appendChild(o);
+});
+fYear.value = state.year;
+
+const fSeason = document.getElementById('fSeason');
+seasons.forEach(s=>{
+  const o = document.createElement('option'); o.value=s; o.textContent=s;
+  fSeason.appendChild(o);
+});
+fSeason.value = state.season;
+
+const districtNames = RAW_DATA[`${state.season} ${state.year}`].districts.map(d=>d.district);
+
+const fDistrict = document.getElementById('fDistrict');
+function populateDistrictSelect(){
+  fDistrict.innerHTML = '';
+  const optAll = document.createElement('option'); optAll.value='All'; optAll.textContent='All Districts';
+  fDistrict.appendChild(optAll);
+  districtNames.forEach(d=>{
+    const o = document.createElement('option'); o.value=d; o.textContent=titleCase(d);
+    fDistrict.appendChild(o);
+  });
+  fDistrict.value = state.district;
+}
+populateDistrictSelect();
+
+const fCrop = document.getElementById('fCrop');
+function populateCropSelect(){
+  fCrop.innerHTML='';
+  const optAll = document.createElement('option'); optAll.value='All'; optAll.textContent='All Departments';
+  fCrop.appendChild(optAll);
+  CROP_LIST.forEach(c=>{
+    const o = document.createElement('option'); o.value=c; o.textContent=c;
+    fCrop.appendChild(o);
+  });
+  fCrop.value = state.crop;
+}
+populateCropSelect();
+
+// ---------- Helpers ----------
+function currentKey(){ return `${state.season} ${state.year}`; }
+function prevKey(){ return `${state.season} ${parseInt(state.year)-1}`; }
+
+function getMetrics(entry){
+  if(!entry) return null;
+  if(state.crop === 'All'){
+    return { extent: entry.total_extent, farmers: entry.total_farmers };
+  }
+  const c = entry.crops[state.crop];
+  return { extent: c.extent, farmers: c.farmers };
+}
+
+function fmtNum(n){
+  if(n===null||n===undefined) return '—';
+  return Math.round(n).toLocaleString('en-IN');
+}
+
+function chgPct(prev, cur){
+  if(prev===null||prev===undefined||cur===null||cur===undefined) return null;
+  if(prev===0) return cur===0?0:null;
+  return ((cur-prev)/prev)*100;
+}
+
+function chgHtml(pct){
+  if(pct===null||pct===undefined) return '<span class="na">—</span>';
+  const rounded = pct.toFixed(2);
+  if(Math.abs(pct) < 0.005) return `<span class="chg flat">– 0.00%</span>`;
+  if(pct>0) return `<span class="chg up">▲ ${rounded}%</span>`;
+  return `<span class="chg down">▼ ${Math.abs(rounded)}%</span>`;
+}
+
+// ---------- Render: header/title ----------
+function districtLabel(){
+  return state.district==='All' ? 'All Districts' : titleCase(state.district);
+}
+
+function renderHeadings(){
+  const cy = currentKey(), py = prevKey();
+  const title = `${districtLabel()} — ${cy}`;
+  document.getElementById('secTitle').textContent = title;
+  document.getElementById('panelTitle').textContent = title;
+  const hasPrev = !!RAW_DATA[py];
+  document.getElementById('secSub').textContent = hasPrev
+    ? `Comparing ${py} → ${cy}`
+    : `Showing ${cy} (no prior-year data available for comparison)`;
+  document.getElementById('seasonPill').textContent = state.season;
+  document.getElementById('prevLabelExtent').textContent = (hasPrev? py : '—').toUpperCase();
+  document.getElementById('curLabelExtent').textContent = cy.toUpperCase();
+  document.getElementById('prevLabelFarmers').textContent = (hasPrev? py : '—').toUpperCase();
+  document.getElementById('curLabelFarmers').textContent = cy.toUpperCase();
+}
+
+// ---------- Render: table ----------
+function getRows(){
+  const cy = currentKey(), py = prevKey();
+  const curSet = RAW_DATA[cy];
+  if(!curSet) return [];
+  const prevSet = RAW_DATA[py];
+  const prevMap = {};
+  if(prevSet) prevSet.districts.forEach(d=> prevMap[d.district]=d);
+
+  let list = curSet.districts;
+  if(state.district !== 'All') list = list.filter(d=>d.district===state.district);
+
+  return list.map(d=>{
+    const cur = getMetrics(d);
+    const prevEntry = prevMap[d.district];
+    const prev = prevEntry ? getMetrics(prevEntry) : null;
+    return {
+      sno: d.sno,
+      district: d.district,
+      curExtent: cur.extent, prevExtent: prev? prev.extent : null,
+      curFarmers: cur.farmers, prevFarmers: prev? prev.farmers : null,
+    };
+  });
+}
+
+function renderTable(){
+  const searchVal = document.getElementById('districtSearch').value.trim().toLowerCase();
+  const rows = getRows().filter(r=> titleCase(r.district).toLowerCase().includes(searchVal));
+  const tbody = document.getElementById('tblBody');
+  if(rows.length===0){
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="big">🔍</div>No districts match your search.</div></td></tr>`;
+    return;
+  }
+  const rowsHtml = rows.map(r=>{
+    const extentChg = chgPct(r.prevExtent, r.curExtent);
+    const farmersChg = chgPct(r.prevFarmers, r.curFarmers);
+    return `<tr>
+      <td class="left sno">${r.sno}</td>
+      <td class="left dname">${titleCase(r.district)}</td>
+      <td class="prev-val">${fmtNum(r.prevExtent)}</td>
+      <td class="cur-val">${fmtNum(r.curExtent)}</td>
+      <td>${chgHtml(extentChg)}</td>
+      <td class="prev-val col-sep">${fmtNum(r.prevFarmers)}</td>
+      <td class="cur-val">${fmtNum(r.curFarmers)}</td>
+      <td>${chgHtml(farmersChg)}</td>
+    </tr>`;
+  }).join('');
+
+  // Grand total row (sums across the currently filtered/visible rows)
+  const hasAnyPrev = rows.some(r=> r.prevExtent!==null);
+  const totals = rows.reduce((acc,r)=>{
+    acc.curExtent += r.curExtent||0;
+    acc.curFarmers += r.curFarmers||0;
+    if(r.prevExtent!==null) acc.prevExtent += r.prevExtent||0;
+    if(r.prevFarmers!==null) acc.prevFarmers += r.prevFarmers||0;
+    return acc;
+  }, {curExtent:0, curFarmers:0, prevExtent:0, prevFarmers:0});
+  const totalExtentChg = hasAnyPrev ? chgPct(totals.prevExtent, totals.curExtent) : null;
+  const totalFarmersChg = hasAnyPrev ? chgPct(totals.prevFarmers, totals.curFarmers) : null;
+  const totalRowHtml = `<tr class="grand-total">
+      <td class="left" colspan="2">GRAND TOTAL</td>
+      <td class="prev-val">${hasAnyPrev? fmtNum(totals.prevExtent) : '—'}</td>
+      <td class="cur-val">${fmtNum(totals.curExtent)}</td>
+      <td>${chgHtml(totalExtentChg)}</td>
+      <td class="prev-val col-sep">${hasAnyPrev? fmtNum(totals.prevFarmers) : '—'}</td>
+      <td class="cur-val">${fmtNum(totals.curFarmers)}</td>
+      <td>${chgHtml(totalFarmersChg)}</td>
+    </tr>`;
+
+  tbody.innerHTML = rowsHtml + totalRowHtml;
+}
+
+// ---------- Bar chart ----------
+let barChart = null;
+let chartMetric = 'extent';
+let chartPeriod = 'both';
+
+function renderBarChart(){
+  const rows = getRows().sort((a,b)=> (b[chartMetric==='extent'?'curExtent':'curFarmers']||0) - (a[chartMetric==='extent'?'curExtent':'curFarmers']||0));
+  const labels = rows.map(r=>titleCase(r.district));
+  const curKey = chartMetric==='extent' ? 'curExtent' : 'curFarmers';
+  const prevKeyName = chartMetric==='extent' ? 'prevExtent' : 'prevFarmers';
+  const curData = rows.map(r=>r[curKey]);
+  const prevData = rows.map(r=>r[prevKeyName]);
+
+  const datasets = [{
+    label: `Current (${currentKey()})`,
+    data: curData,
+    backgroundColor: '#1a8a4d',
+    borderRadius: 4,
+    maxBarThickness: 26
+  }];
+  if(chartPeriod==='both' && RAW_DATA[prevKey()]){
+    datasets.unshift({
+      label: `Previous (${prevKey()})`,
+      data: prevData,
+      backgroundColor: '#c7d2e3',
+      borderRadius: 4,
+      maxBarThickness: 26
+    });
+  }
+
+  const holder = document.getElementById('chartHolder');
+  holder.style.minWidth = Math.max(900, labels.length*46) + 'px';
+
+  if(barChart) barChart.destroy();
+  const ctx = document.getElementById('barChart').getContext('2d');
+  barChart = new Chart(ctx, {
+    type:'bar',
+    data:{ labels, datasets },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{
+        legend:{ position:'top', labels:{ font:{family:'Inter', weight:'600', size:12}, color:'#1b2333', usePointStyle:true, pointStyle:'rectRounded' } },
+        tooltip:{
+          callbacks:{
+            label: (ctx)=> ` ${ctx.dataset.label}: ${Math.round(ctx.raw).toLocaleString('en-IN')}`
+          }
+        }
+      },
+      scales:{
+        x:{ ticks:{ font:{family:'Inter', size:11}, color:'#6b7280', maxRotation:60, minRotation:40 }, grid:{ display:false } },
+        y:{ ticks:{ font:{family:'Inter', size:11}, color:'#6b7280', callback:(v)=>v.toLocaleString('en-IN') }, grid:{ color:'#eef0f4' } }
+      }
+    }
+  });
+}
+
+// ---------- Crop-wise ----------
+let cropChart = null;
+function renderCropwise(){
+  const cy = currentKey(), py = prevKey();
+  const curSet = RAW_DATA[cy];
+  const prevSet = RAW_DATA[py];
+  const prevMap = {};
+  if(prevSet) prevSet.districts.forEach(d=> prevMap[d.district]=d);
+
+  let curDistricts = curSet.districts;
+  if(state.district!=='All') curDistricts = curDistricts.filter(d=>d.district===state.district);
+
+  const grid = document.getElementById('cropGrid');
+  const cardsHtml = CROP_LIST.map(crop=>{
+    let curExtent=0, curFarmers=0, prevExtent=0, prevFarmers=0, hasPrev=!!prevSet;
+    curDistricts.forEach(d=>{
+      curExtent += d.crops[crop].extent||0;
+      curFarmers += d.crops[crop].farmers||0;
+      const pd = prevMap[d.district];
+      if(pd){ prevExtent += pd.crops[crop].extent||0; prevFarmers += pd.crops[crop].farmers||0; }
+    });
+    const extentChg = hasPrev? chgPct(prevExtent, curExtent) : null;
+    const farmersChg = hasPrev? chgPct(prevFarmers, curFarmers) : null;
+    return `<div class="crop-card">
+      <div class="cname"><span class="swatch" style="background:${CROP_COLORS[crop]}"></span>${crop}</div>
+      <div class="crop-metric">
+        <span class="k">Extent (Acres)</span>
+        <span class="v">${hasPrev?`<span class="prev">${fmtNum(prevExtent)} →</span>`:''}${fmtNum(curExtent)}</span>
+      </div>
+      <div class="crop-metric">
+        <span class="k">Change</span>
+        <span class="v">${chgHtml(extentChg)}</span>
+      </div>
+      <div class="crop-metric">
+        <span class="k">Farmers</span>
+        <span class="v">${hasPrev?`<span class="prev">${fmtNum(prevFarmers)} →</span>`:''}${fmtNum(curFarmers)}</span>
+      </div>
+      <div class="crop-metric" style="margin-bottom:0;">
+        <span class="k">Change</span>
+        <span class="v">${chgHtml(farmersChg)}</span>
+      </div>
+    </div>`;
+  }).join('');
+  grid.innerHTML = cardsHtml;
+
+  // donut of extent share by crop
+  const extentTotals = CROP_LIST.map(crop=> curDistricts.reduce((s,d)=> s+(d.crops[crop].extent||0),0));
+  if(cropChart) cropChart.destroy();
+  const ctx = document.getElementById('cropChart').getContext('2d');
+  cropChart = new Chart(ctx, {
+    type:'doughnut',
+    data:{
+      labels: CROP_LIST,
+      datasets:[{
+        data: extentTotals,
+        backgroundColor: CROP_LIST.map(c=>CROP_COLORS[c]),
+        borderWidth:2,
+        borderColor:'#ffffff'
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      cutout:'62%',
+      plugins:{
+        legend:{ position:'right', labels:{ font:{family:'Inter', weight:'600', size:12}, color:'#1b2333', usePointStyle:true, pointStyle:'circle', padding:16 } },
+        tooltip:{
+          callbacks:{
+            label: (ctx)=>{
+              const total = ctx.dataset.data.reduce((a,b)=>a+b,0);
+              const pct = total? (ctx.raw/total*100).toFixed(1):0;
+              return ` ${ctx.label}: ${Math.round(ctx.raw).toLocaleString('en-IN')} acres (${pct}%)`;
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+// ---------- Render orchestrator ----------
+function renderAll(){
+  renderHeadings();
+  renderTable();
+  if(currentTab==='bar') renderBarChart();
+  if(currentTab==='crop') renderCropwise();
+}
+
+// ---------- Filter events ----------
+fYear.addEventListener('change', ()=>{ state.year = fYear.value; onDistrictSourceChange(); });
+fSeason.addEventListener('change', ()=>{ state.season = fSeason.value; onDistrictSourceChange(); });
+fDistrict.addEventListener('change', ()=>{ state.district = fDistrict.value; renderAll(); });
+fCrop.addEventListener('change', ()=>{ state.crop = fCrop.value; renderAll(); });
+document.getElementById('districtSearch').addEventListener('input', renderTable);
+
+function onDistrictSourceChange(){
+  // repopulate district list in case set differs (shouldn't, but safe)
+  const names = RAW_DATA[currentKey()] ? RAW_DATA[currentKey()].districts.map(d=>d.district) : [];
+  const keep = names.includes(state.district) ? state.district : 'All';
+  state.district = keep;
+  fDistrict.value = keep;
+  renderAll();
+}
+
+document.getElementById('btnReset').addEventListener('click', ()=>{
+  state = { year:'2025', season:'Kharif', district:'All', crop:'All' };
+  fYear.value = state.year; fSeason.value = state.season;
+  fDistrict.value = state.district; fCrop.value = state.crop;
+  document.getElementById('districtSearch').value = '';
+  renderAll();
+});
+
+// ---------- Tabs ----------
+let currentTab = 'report';
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    currentTab = btn.dataset.tab;
+    document.querySelectorAll('.tabview').forEach(v=>v.style.display='none');
+    document.getElementById(`view-${currentTab}`).style.display='block';
+    if(currentTab==='bar') renderBarChart();
+    if(currentTab==='crop') renderCropwise();
+  });
+});
+
+document.getElementById('metricToggle').addEventListener('click', (e)=>{
+  const b = e.target.closest('button'); if(!b) return;
+  document.querySelectorAll('#metricToggle button').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  chartMetric = b.dataset.metric;
+  renderBarChart();
+});
+document.getElementById('periodToggle').addEventListener('click', (e)=>{
+  const b = e.target.closest('button'); if(!b) return;
+  document.querySelectorAll('#periodToggle button').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  chartPeriod = b.dataset.period;
+  renderBarChart();
+});
+
+// ---------- Init ----------
+renderAll();
+</script>
+</body>
+</html>
