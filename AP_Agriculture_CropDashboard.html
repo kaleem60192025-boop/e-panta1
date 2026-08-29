@@ -354,12 +354,15 @@ fSeason.value = 0;
 fillSelect(fDistrict, DISTRICTS.map((d,i)=>[i,d]), 'All Districts');
 fillSelect(fCrop, CROPS.map((c,i)=>[i,c]), 'All Crops');
 
-/* ================= District → Mandal mapping (derived from data, doesn't touch RECORDS) ================= */
+/* ================= District → Mandal / Crop mapping (derived from data, doesn't touch RECORDS) ================= */
 const DISTRICT_MANDALS = {}; // distIdx -> Set(mandalIdx)
+const DISTRICT_CROPS = {}; // distIdx -> Set(cropIdx)
 RECORDS.forEach(r=>{
-  const d=r[2], m=r[3];
+  const d=r[2], m=r[3], c=r[4];
   if(!DISTRICT_MANDALS[d]) DISTRICT_MANDALS[d] = new Set();
   DISTRICT_MANDALS[d].add(m);
+  if(!DISTRICT_CROPS[d]) DISTRICT_CROPS[d] = new Set();
+  DISTRICT_CROPS[d].add(c);
 });
 function populateMandalSelect(distIdx){
   if(distIdx===null){
@@ -372,7 +375,20 @@ function populateMandalSelect(distIdx){
   }
   fMandal.value = '';
 }
+function populateCropSelect(distIdx){
+  const prevVal = fCrop.value;
+  if(distIdx===null){
+    fillSelect(fCrop, CROPS.map((c,i)=>[i,c]), 'All Crops');
+  } else {
+    const cropIdxs = [...(DISTRICT_CROPS[distIdx]||[])].sort((a,b)=>CROPS[a].localeCompare(CROPS[b]));
+    fillSelect(fCrop, cropIdxs.map(c=>[c,CROPS[c]]), 'All Crops');
+  }
+  // Keep the previous crop selection if it's still valid for this district; otherwise reset to "All Crops"
+  const stillValid = [...fCrop.options].some(o=>o.value===prevVal);
+  fCrop.value = stillValid ? prevVal : '';
+}
 populateMandalSelect(null);
+populateCropSelect(null);
 
 /* ================= Aggregation helpers ================= */
 function aggregate(recs){
@@ -989,6 +1005,7 @@ function renderAll(){
 fDistrict.addEventListener('change', ()=>{
   const distIdx = fDistrict.value===''? null : parseInt(fDistrict.value);
   populateMandalSelect(distIdx);
+  populateCropSelect(distIdx);
   renderAll();
 });
 
@@ -997,7 +1014,7 @@ document.getElementById('btnReset').addEventListener('click', ()=>{
   fSeason.value = 0;
   fDistrict.value = '';
   populateMandalSelect(null);
-  fCrop.value = '';
+  populateCropSelect(null);
   renderAll();
 });
 
