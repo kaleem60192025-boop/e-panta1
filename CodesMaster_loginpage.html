@@ -206,7 +206,7 @@ body{
     e.preventDefault();
     var pwField = document.getElementById('pw');
     var errorMsg = document.getElementById('errorMsg');
-    if(pwField.value === 'MASTER'){
+    if(pwField.value === 'APCODE'){
       sessionStorage.setItem('cm_auth', '1');
       window.location.href = 'Codes_Master.html';
     } else {
