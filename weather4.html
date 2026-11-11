@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="te">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>వాతావరణం & వార్తలు</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anek+Telugu:wdth,wght@75..100,300..800&display=swap" rel="stylesheet">
+<style>
+:root{--bg1:#123f7a;--bg2:#f08a4b;--ink:#fff;--mute:rgba(255,255,255,.72);--glass:rgba(8,16,38,.34);--edge:rgba(255,255,255,.16);
+ --paper:#faf5ea;--pink:#171d2a;--pm:#5b6472;--rule:#ddd3bf;--acc:#c2410c}
+body[data-sky=cloud]{--bg1:#2c3d54;--bg2:#8da0b5}
+body[data-sky=rain]{--bg1:#0f1c30;--bg2:#46647f}
+body[data-sky=snow]{--bg1:#3c5373;--bg2:#c3d3e3}
+body[data-sky=storm]{--bg1:#12162a;--bg2:#5b4a7d}
+body[data-day="0"]{--bg1:#070b1f;--bg2:#2b3b72}
+*{box-sizing:border-box;margin:0}
+body{font-family:"Anek Telugu",system-ui,sans-serif;color:var(--ink);line-height:1.5;min-height:100vh;
+ background:linear-gradient(180deg,var(--bg1) 0%,var(--bg1) 38%,var(--bg2) 100%) fixed;transition:background .8s;overflow-x:hidden}
+body::before{content:"";position:fixed;width:60vmax;height:60vmax;right:-18vmax;top:-26vmax;border-radius:50%;pointer-events:none;
+ background:radial-gradient(circle,rgba(255,214,140,.55),rgba(255,160,80,.16) 45%,transparent 68%);animation:pulse 8s ease-in-out infinite}
+body[data-day="0"]::before{background:radial-gradient(circle,rgba(190,205,255,.28),rgba(120,140,255,.08) 45%,transparent 68%)}
+body[data-sky=rain]::after,body[data-sky=storm]::after{content:"";position:fixed;inset:0;pointer-events:none;opacity:.35;
+ background:repeating-linear-gradient(105deg,transparent 0 14px,rgba(200,220,255,.5) 15px 16px,transparent 17px 34px);background-size:120px 160px;animation:rain .55s linear infinite}
+@keyframes pulse{50%{transform:scale(1.08);opacity:.8}}
+@keyframes rain{to{background-position:-30px 160px}}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}}
+main{position:relative;z-index:1;max-width:1080px;margin:0 auto;padding:clamp(14px,4vw,40px)}
+button{font:inherit;cursor:pointer}button:focus-visible,a:focus-visible{outline:2px solid currentColor;outline-offset:2px}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+#place{font-size:1.3rem;font-weight:800}#addr{color:var(--mute);font-size:.82rem;max-width:56ch}
+#clock{color:var(--mute);font-size:.9rem;margin-top:2px}
+.ctrls{display:flex;gap:8px;flex-wrap:wrap}
+.seg{display:flex;border:1px solid var(--edge);border-radius:999px;overflow:hidden;background:var(--glass);backdrop-filter:blur(10px)}
+.seg button{background:none;border:0;color:var(--ink);padding:6px 15px;font-weight:500}
+.seg button[aria-pressed=true]{background:#fff;color:#0d2347;font-weight:800}
+.status{padding:30px 0;font-size:1.1rem}
+.hero{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;margin:clamp(20px,4vw,44px) 0 22px;animation:rise .7s both}
+.temp{font-size:clamp(7rem,26vw,14.5rem);font-weight:800;line-height:.8;letter-spacing:-.06em;font-stretch:75%;text-shadow:0 6px 40px rgba(0,0,0,.25)}
+.temp sup{font-size:.24em;font-weight:400;letter-spacing:0;vertical-align:top;position:relative;top:.5em}
+.cond{display:flex;align-items:center;gap:12px;font-size:1.8rem;font-weight:800;margin-top:14px}
+.cond i{font-style:normal;font-size:2.6rem}
+.hl{color:var(--mute);margin-top:2px}
+.card{background:var(--glass);border:1px solid var(--edge);border-radius:18px;backdrop-filter:blur(14px);padding:16px 18px}
+.card h3{font-size:.8rem;font-weight:600;color:var(--mute);margin-bottom:8px;letter-spacing:.02em}
+.sun{width:250px;text-align:center}.sun svg{width:100%;height:auto;overflow:visible}
+.sun .tt{display:flex;justify-content:space-between;font-size:.85rem;margin-top:2px}
+.sec{margin:18px 0 8px;font-weight:700}
+.hours{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;scrollbar-width:thin}
+.hr{flex:0 0 auto;min-width:74px;text-align:center;background:var(--glass);border:1px solid var(--edge);border-radius:14px;padding:10px 6px;backdrop-filter:blur(10px)}
+.hr:first-child{background:rgba(255,255,255,.22)}
+.hr .a{font-size:.78rem;color:var(--mute)}.hr .b{font-size:1.5rem}.hr .c{font-weight:700}.hr .d{font-size:.72rem;color:#8fd3ff}
+.tiles{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+.tile{background:var(--glass);border:1px solid var(--edge);border-radius:16px;padding:12px 14px;backdrop-filter:blur(10px)}
+.tile span{display:block;color:var(--mute);font-size:.78rem}.tile b{font-size:1.3rem;font-weight:800}
+.tile em{display:block;font-style:normal;font-size:.75rem;color:var(--mute)}
+.mk{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.pos{color:#7ff0ae}.neg{color:#ffa3a3}
+.mnote{color:var(--mute);font-size:.72rem;margin-top:6px}
+.fc{display:grid;gap:6px}
+.row{display:grid;grid-template-columns:5.5rem 2.2rem 1fr 3rem 8rem 3rem;align-items:center;gap:10px;padding:8px 14px;background:var(--glass);border:1px solid var(--edge);border-radius:14px}
+.row .dn{font-weight:700}.row .dn small{display:block;font-weight:400;color:var(--mute);font-size:.72rem}
+.row .ic{font-size:1.5rem}.row .cd{color:var(--mute);font-size:.85rem}
+.bar{height:6px;border-radius:9px;background:rgba(255,255,255,.18);position:relative}
+.bar i{position:absolute;top:0;bottom:0;border-radius:9px;background:linear-gradient(90deg,#7dd3fc,#fbbf24)}
+.row .lo{color:var(--mute);text-align:right}.row .hi{font-weight:800}
+/* news */
+.sheet{background:var(--paper);color:var(--pink);border-radius:22px;margin-top:40px;padding:clamp(16px,3vw,32px);box-shadow:0 30px 70px -25px rgba(0,0,0,.55)}
+.shead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.shead h2{font-size:1.6rem;font-weight:800}
+.rf{background:none;border:1px solid var(--rule);color:var(--pink);border-radius:999px;padding:5px 14px;font-size:.85rem}.rf:hover{border-color:var(--pink)}
+#newsUpd{color:var(--pm);font-size:.8rem;margin:2px 0 14px}
+.tabs{display:flex;gap:6px;margin-bottom:14px}
+.tabs button{flex:1;background:none;border:1px solid var(--rule);border-radius:12px;padding:9px 4px;color:var(--pink);font-weight:700}
+.tabs button[aria-selected=true]{background:var(--pink);color:var(--paper);border-color:var(--pink)}
+.col{display:none}.col.on{display:block;animation:rise .4s both}
+.upd{color:var(--pm);font-size:.75rem;margin-bottom:6px}
+.brief{background:#f1e8d6;border-left:4px solid var(--acc);border-radius:10px;padding:12px 16px;margin:6px 0 12px}
+.brief b{display:block;margin-bottom:4px}
+.brief div div{padding:2px 0 2px 14px;text-indent:-14px}.brief div div::before{content:"• "}
+.col ul{list-style:none;padding:0;counter-reset:n}
+.col li{counter-increment:n;display:grid;grid-template-columns:2.2rem 1fr;padding:11px 0;border-top:1px solid var(--rule)}
+.col li::before{content:counter(n);font-weight:800;font-size:1.15rem;color:var(--acc)}
+.col a{color:var(--pink);text-decoration:none;font-weight:600}.col a:hover{text-decoration:underline}
+.desc{margin-top:5px;color:#3a4352;font-size:.92rem;line-height:1.55;display:-webkit-box;-webkit-line-clamp:5;line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+.src{color:var(--pm);font-size:.75rem;margin-top:2px}
+footer{margin:22px 0 0;color:var(--mute);font-size:.75rem}
+@media(max-width:860px){.tiles{grid-template-columns:repeat(3,1fr)}.hero{grid-template-columns:1fr}.sun{width:100%;max-width:320px}
+ .row{grid-template-columns:4.5rem 2rem 1fr 2.6rem 2.6rem}.row .cd,.row .r{display:none}}
+@media(max-width:480px){.tiles{grid-template-columns:repeat(2,1fr)}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body data-sky="clear" data-day="1">
+<main>
+  <div class="top">
+    <div><div id="place"></div><div id="clock"></div><div id="addr"></div></div>
+    <div class="ctrls">
+      <div class="seg" role="group" aria-label="Language / భాష"><button id="lTe" aria-pressed="true">తెలుగు</button><button id="lEn" aria-pressed="false">English</button></div>
+      <div class="seg" role="group" aria-label="Unit"><button id="uC" aria-pressed="true">°C</button><button id="uF" aria-pressed="false">°F</button></div>
+    </div>
+  </div>
+  <div id="status" class="status"></div>
+  <section id="view" hidden>
+    <div class="hero">
+      <div><div class="temp" id="temp"></div><div class="cond"><i id="icon" aria-hidden="true"></i><span id="cond"></span></div><div class="hl" id="hl"></div></div>
+      <div class="card sun"><h3 id="sunT"></h3><div id="sun"></div></div>
+    </div>
+    <div class="sec" id="dtT"></div><div class="tiles" id="tiles"></div>
+    <div class="sec" id="nextT"></div><div class="fc" id="days"></div>
+  </section>
+  <section id="mkt"><div class="sec" id="mT"></div><div class="tiles mk" id="mGrid"></div><div class="mnote" id="mNote"></div></section>
+  <section class="sheet" id="news">
+    <div class="shead"><h2 id="newsT"></h2><button class="rf" id="refreshNews"></button></div>
+    <div id="newsUpd"></div>
+    <div class="tabs" id="tabs" role="tablist"></div>
+    <div id="cols"></div>
+  </section>
+  <footer id="foot"></footer>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+let lang="te",unit="C",data=null,loc=null;
+const T={
+ te:{title:"వాతావరణం & వార్తలు",find:"మీ స్థానాన్ని గుర్తిస్తున్నాం… ఖచ్చితమైన చిరునామా కోసం లొకేషన్ అనుమతించండి.",load:"వాతావరణం లోడ్ అవుతోంది…",
+  fail:"వాతావరణం లోడ్ కాలేదు: ",failTip:". ఇంటర్నెట్ చెక్ చేసి మళ్లీ ప్రయత్నించండి.",yours:"మీ స్థానం",
+  approx:"IP ఆధారంగా అంచనా స్థానం. ఖచ్చితమైన చిరునామా కోసం లొకేషన్ అనుమతించండి.",
+  feels:"అనుభూతి",hum:"తేమ",wind:"గాలి",rain:"వర్ష అవకాశం",uv:"UV సూచిక",pres:"పీడనం",aqi:"గాలి నాణ్యత (AQI)",sun:"సూర్య ప్రయాణం",sr:"ఉదయం",ss:"అస్తమయం",
+  high:"గరిష్ఠం",low:"కనిష్ఠం",next:"రాబోయే 5 రోజులు",hours:"గంటల వారీగా",det:"వివరాలు",kmh:"కి.మీ/గం",now:"ఇప్పుడు",
+  news:"తాజా వార్తలు",refresh:"రిఫ్రెష్",loading:"వార్తలు లోడ్ అవుతున్నాయి…",updating:"వార్తలు అప్‌డేట్ అవుతున్నాయి…",
+  updated:"చివరి అప్‌డేట్: ",every:" · ప్రతి 5 నిమిషాలకు రిఫ్రెష్",india:"దేశ వార్తలు",andhra:"ఆంధ్రప్రదేశ్",sports:"క్రీడలు",
+  min:" నిమి. క్రితం",h:" గం. క్రితం",d:" రోజు క్రితం",fail2:"వార్తలు లోడ్ కాలేదు: ",
+  foot:"వాతావరణం, గాలి నాణ్యత: Open-Meteo · చిరునామా: OpenStreetMap · మార్కెట్: Yahoo Finance, CoinGecko, ExchangeRate-API · వార్తలు: Google News, NTV తెలుగు, ఆంధ్రజ్యోతి",loc:"te-IN"},
+ en:{title:"Weather & News",find:"Finding your location… allow location access for an exact address.",load:"Loading forecast…",
+  fail:"Could not load weather: ",failTip:". Check your connection or disable any ad blocker, then reload.",yours:"Your location",
+  approx:"Approximate location from IP. Allow location access for your exact address.",
+  feels:"Feels like",hum:"Humidity",wind:"Wind",rain:"Rain chance",uv:"UV index",pres:"Pressure",aqi:"Air quality (AQI)",sun:"Sun path",sr:"Sunrise",ss:"Sunset",
+  high:"High",low:"Low",next:"Next 5 days",hours:"Hourly",det:"Details",kmh:"km/h",now:"Now",
+  news:"Latest news",refresh:"Refresh",loading:"Loading news…",updating:"Updating news…",
+  updated:"Last updated: ",every:" · refreshes every 5 minutes",india:"India",andhra:"Andhra Pradesh",sports:"Sports",
+  min:" min ago",h:" h ago",d:" d ago",fail2:"Could not load news: ",
+  foot:"Weather & air quality: Open-Meteo · Address: OpenStreetMap · Markets: Yahoo Finance, CoinGecko, ExchangeRate-API · News: Google News, The Hindu, Indian Express, HT, Cricbuzz",loc:"en-IN"}};
+const t=k=>T[lang][k];
+const WMO={0:["Clear sky","నిర్మలమైన ఆకాశం","☀️","clear"],1:["Mostly clear","దాదాపు నిర్మలం","🌤️","clear"],2:["Partly cloudy","పాక్షిక మేఘావృతం","⛅","cloud"],3:["Overcast","మేఘావృతం","☁️","cloud"],
+45:["Fog","పొగమంచు","🌫️","cloud"],48:["Rime fog","దట్టమైన మంచు","🌫️","cloud"],51:["Light drizzle","చిరుజల్లులు","🌦️","rain"],53:["Drizzle","తుంపర","🌦️","rain"],55:["Heavy drizzle","భారీ తుంపర","🌧️","rain"],
+56:["Freezing drizzle","చల్లని తుంపర","🌧️","rain"],57:["Freezing drizzle","చల్లని తుంపర","🌧️","rain"],61:["Light rain","తేలికపాటి వర్షం","🌦️","rain"],63:["Rain","వర్షం","🌧️","rain"],65:["Heavy rain","భారీ వర్షం","🌧️","rain"],
+66:["Freezing rain","చల్లని వర్షం","🌧️","rain"],67:["Freezing rain","చల్లని వర్షం","🌧️","rain"],71:["Light snow","తేలికపాటి హిమపాతం","🌨️","snow"],73:["Snow","హిమపాతం","🌨️","snow"],75:["Heavy snow","భారీ హిమపాతం","❄️","snow"],77:["Snow grains","మంచు రేణువులు","❄️","snow"],
+80:["Rain showers","జల్లులు","🌦️","rain"],81:["Rain showers","జల్లులు","🌧️","rain"],82:["Violent showers","తీవ్ర జల్లులు","🌧️","rain"],85:["Snow showers","మంచు జల్లులు","🌨️","snow"],86:["Snow showers","మంచు జల్లులు","🌨️","snow"],
+95:["Thunderstorm","ఉరుములతో వర్షం","⛈️","storm"],96:["Thunderstorm, hail","వడగళ్ల వాన","⛈️","storm"],99:["Thunderstorm, hail","వడగళ్ల వాన","⛈️","storm"]};
+const info=(c,night)=>{const w=WMO[c]||["Unknown","తెలియదు","🌡️","cloud"];return[w[lang==="te"?1:0],night&&c<=1?"🌙":w[2],w[3]]};
+const conv=c=>Math.round(unit==="C"?c:c*9/5+32);
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+const todayStr=()=>new Date().toLocaleDateString(t("loc"),{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+const tick=()=>{$("clock").textContent=todayStr()+" · "+new Date().toLocaleTimeString(t("loc"),{hour:"numeric",minute:"2-digit"})};
+
+/* location + weather */
+const browserPos=()=>new Promise((res,rej)=>{if(!navigator.geolocation)return rej(new Error("no geo"));
+  navigator.geolocation.getCurrentPosition(p=>res(p.coords),rej,{enableHighAccuracy:true,timeout:12000,maximumAge:60000})});
+async function reverse(lat,lon){
+  const r=await fetch("https://nominatim.openstreetmap.org/reverse?format=jsonv2&addressdetails=1&zoom=18&accept-language="+lang+"&lat="+lat+"&lon="+lon);
+  if(!r.ok)throw new Error("Address lookup failed");const j=await r.json(),a=j.address||{};
+  return{short:[a.suburb||a.neighbourhood||a.road,a.city||a.town||a.village||a.county,a.state].filter(Boolean).join(", ")||j.display_name,full:j.display_name};
+}
+async function ipLookup(){
+  try{const j=await(await fetch("https://ipwho.is/")).json();if(!j.success)throw 0;return{lat:j.latitude,lon:j.longitude,name:[j.city,j.region].filter(Boolean).join(", ")}}
+  catch(e){const j=await(await fetch("https://ipapi.co/json/")).json();if(j.error)throw new Error(j.reason||"Location lookup failed");return{lat:j.latitude,lon:j.longitude,name:[j.city,j.region].filter(Boolean).join(", ")}}
+}
+async function getLocation(){
+  let ip=null;try{ip=await ipLookup()}catch(e){}
+  try{const c=await browserPos();return{lat:c.latitude,lon:c.longitude,precise:true,acc:Math.round(c.accuracy)}}
+  catch(e){if(!ip)throw new Error("Location lookup failed");return Object.assign({precise:false},ip)}
+}
+async function getWeather(lat,lon){
+  const r=await fetch("https://api.open-meteo.com/v1/forecast?latitude="+lat+"&longitude="+lon+
+   "&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,weather_code,is_day,surface_pressure"+
+   ""+
+   "&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset,uv_index_max&timezone=auto&forecast_days=6");
+  if(!r.ok)throw new Error("Weather service error ("+r.status+")");return r.json();
+}
+async function renderPlace(){
+  if(!loc)return;let name=loc.name,full="";
+  if(loc.precise){try{const a=await reverse(loc.lat,loc.lon);name=a.short;full=a.full}catch(e){}}
+  $("place").textContent="📍 "+(name||t("yours"));
+  $("addr").textContent=loc.precise?(full?full+" · ":"")+loc.lat.toFixed(4)+", "+loc.lon.toFixed(4)+" (±"+loc.acc+" m)":t("approx");
+}
+function sunArc(c,d){
+  const L=t("loc"),f=s=>new Date(s).toLocaleTimeString(L,{hour:"numeric",minute:"2-digit"});
+  const a=new Date(d.sunrise[0]),b=new Date(d.sunset[0]),n=new Date(c.time);
+  const p=Math.min(1,Math.max(0,(n-a)/(b-a))),th=Math.PI*(1-p),x=110+90*Math.cos(th),y=110-90*Math.sin(th);
+  return '<svg viewBox="0 0 220 122" role="img" aria-label="'+t("sun")+'"><path d="M20 110A90 90 0 0 1 200 110" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="2" stroke-dasharray="4 5"/>'+
+   '<path d="M20 110A90 90 0 0 1 '+x.toFixed(1)+' '+y.toFixed(1)+'" fill="none" stroke="#fbbf24" stroke-width="3" stroke-linecap="round"/>'+
+   '<line x1="10" y1="110" x2="210" y2="110" stroke="rgba(255,255,255,.3)"/>'+
+   '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="9" fill="'+(c.is_day?"#fde68a":"#c7d2fe")+'" stroke="#fff" stroke-width="2"/></svg>'+
+   '<div class="tt"><span>🌅 '+f(d.sunrise[0])+'</span><span>🌇 '+f(d.sunset[0])+'</span></div>';
+}
+let aq=null;
+const AQL=[[50,"Good","మంచిది"],[100,"Moderate","మధ్యస్థం"],[150,"Unhealthy for sensitive","సున్నితులకు హానికరం"],[200,"Unhealthy","హానికరం"],[300,"Very unhealthy","చాలా హానికరం"],[1e9,"Hazardous","ప్రమాదకరం"]];
+function aqText(){if(!aq||aq.us_aqi==null)return"…";const v=Math.round(aq.us_aqi),l=AQL.find(x=>v<=x[0]);return v+"<em>"+l[lang==="te"?2:1]+"</em>"}
+async function loadAQ(){
+  try{const j=await getJ("https://air-quality-api.open-meteo.com/v1/air-quality?latitude="+loc.lat+"&longitude="+loc.lon+"&current=us_aqi,pm2_5");aq=j.current;renderWeather()}catch(e){}
+}
+const getJ=async u=>{const r=await fetch(u,tmo());if(!r.ok)throw new Error("HTTP "+r.status);return r.json()};
+function renderWeather(){
+  if(!data)return;const{current:c,daily:d}=data,night=!c.is_day,[label,icon,sky]=info(c.weather_code,night),L=t("loc");
+  document.body.dataset.sky=sky;document.body.dataset.day=c.is_day?1:0;
+  $("temp").innerHTML=conv(c.temperature_2m)+"<sup>°"+unit+"</sup>";$("icon").textContent=icon;$("cond").textContent=label;
+  $("hl").textContent=t("high")+" "+conv(d.temperature_2m_max[0])+"° · "+t("low")+" "+conv(d.temperature_2m_min[0])+"°  ·  "+t("feels")+" "+conv(c.apparent_temperature)+"°";
+  $("sunT").textContent="☀ "+t("sun");$("sun").innerHTML=sunArc(c,d);
+  $("dtT").textContent=t("det");$("nextT").textContent=t("next");
+  const tl=[[t("hum"),c.relative_humidity_2m+"%"],[t("wind"),Math.round(c.wind_speed_10m)+" "+t("kmh")],[t("rain"),(d.precipitation_probability_max[0]??0)+"%"],
+    [t("uv"),Math.round(d.uv_index_max[0])],[t("aqi"),aqText()],[t("feels"),conv(c.apparent_temperature)+"°"]];
+  $("tiles").innerHTML=tl.map(x=>'<div class="tile"><span>'+x[0]+'</span><b>'+x[1]+'</b></div>').join("");
+  const mn=Math.min(...d.temperature_2m_min.slice(1,6)),mx=Math.max(...d.temperature_2m_max.slice(1,6)),sp=(mx-mn)||1;let r="";
+  for(let i=1;i<=5;i++){const dt=new Date(d.time[i]+"T00:00"),[l,ic]=info(d.weather_code[i]),lo=d.temperature_2m_min[i],hi=d.temperature_2m_max[i];
+    r+='<div class="row"><div class="dn">'+dt.toLocaleDateString(L,{weekday:"short"})+'<small>'+dt.toLocaleDateString(L,{day:"numeric",month:"short"})+'</small></div><div class="ic">'+ic+'</div><div class="cd">'+l+
+     '</div><div class="lo">'+conv(lo)+'°</div><div class="bar"><i style="left:'+((lo-mn)/sp*100)+'%;width:'+((hi-lo)/sp*100)+'%"></i></div><div class="hi">'+conv(hi)+'°</div></div>'}
+  $("days").innerHTML=r;
+}
+async function initWeather(){
+  $("status").textContent=t("find");
+  try{loc=await getLocation();renderPlace();$("status").textContent=t("load");
+    data=await getWeather(loc.lat,loc.lon);$("status").hidden=true;$("view").hidden=false;renderWeather();loadAQ()}
+  catch(e){$("status").hidden=false;$("status").textContent=t("fail")+e.message+t("failTip")}
+}
+
+/* news */
+const GNEWS_KEY="";
+const WINDOWS=[5],MIN_STORIES=10,KEYS=["india","andhra","sports"];
+const WL={te:h=>h===1?"గత 1 గంటలో":"గత "+h+" గంటలు",en:h=>h===1?"Last 1 hour":"Last "+h+" hours"};
+const NB={te:"ఈ రోజు 5 ముఖ్యాంశాలు",en:"Today in 5 lines"};
+const hl=()=>lang==="te"?"hl=te&gl=IN&ceid=IN:te":"hl=en-IN&gl=IN&ceid=IN:en";
+const when=h=>h===24?"when:1d":"when:"+h+"h";
+const Q={india:{te:"భారతదేశం",en:"India"},andhra:{te:"ఆంధ్రప్రదేశ్",en:"Andhra Pradesh"},sports:{te:"క్రీడలు OR క్రికెట్",en:"sports OR cricket"}};
+const feedUrl=(k,h)=>"https://news.google.com/rss/search?q="+encodeURIComponent(Q[k][lang]+" "+when(h))+"&"+hl();
+const ago=d=>{const m=Math.max(0,Math.round((Date.now()-d)/6e4));return m<60?m+t("min"):m<1440?Math.floor(m/60)+t("h"):Math.floor(m/1440)+t("d")};
+const ftime=d=>d.toLocaleString(t("loc"),{day:"numeric",month:"short",hour:"numeric",minute:"2-digit"});
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const tmo=()=>({signal:AbortSignal.timeout(9000)});
+const PROXIES=[
+  u=>"https://api.allorigins.win/raw?url="+encodeURIComponent(u),
+  u=>"https://corsproxy.io/?url="+encodeURIComponent(u),
+  u=>"https://api.codetabs.com/v1/proxy?quest="+encodeURIComponent(u)];
+function extractDesc(html,title){   // Google News packs related coverage of the same story into <description>
+  try{const d=new DOMParser().parseFromString(html||"","text/html");const seen=new Set([title]);const out=[];
+    d.querySelectorAll("li").forEach(li=>{const a=li.querySelector("a"),f=li.querySelector("font");
+      const tx=((a?a.textContent:li.textContent)||"").replace(/\s+/g," ").trim();
+      if(!tx||seen.has(tx)||tx.startsWith(title))return;seen.add(tx);out.push(tx+(f?" ("+f.textContent.trim()+")":""))});
+    return out.slice(0,5).join(" · ")}catch(e){return""}
+}
+const split=raw=>{const i=raw.lastIndexOf(" - ");return i>0?[raw.slice(0,i),raw.slice(i+3)]:[raw,""]};
+function parseRss(txt){   // an empty but valid feed is NOT an error
+  const x=new DOMParser().parseFromString(txt,"text/xml");
+  if(!x.querySelector("rss,channel"))throw new Error("bad feed");
+  return[...x.querySelectorAll("item")].map(it=>{const g=n=>(it.querySelector(n)||{}).textContent||"";
+    const[title,src]=split(g("title"));return{title,src,link:g("link"),date:new Date(g("pubDate")),desc:extractDesc(g("description"),title)}});
+}
+async function viaRss2json(url,k){   // staggered + retried, so the free limit is not hit
+  await sleep(KEYS.indexOf(k)*3000);
+  for(let a=0;a<4;a++){
+    try{const j=await(await fetch("https://api.rss2json.com/v1/api.json?rss_url="+encodeURIComponent(url),tmo())).json();
+      if(j.status==="ok")return j.items.map(it=>{const[title,src]=split(it.title);return{title,src:src||it.author||"",link:it.link,date:new Date(it.pubDate.replace(" ","T")+"Z"),desc:extractDesc(it.description,title)}});
+      if(!/short period|converting/i.test(j.message||""))throw new Error(j.message||"Feed error");
+    }catch(e){if(a===3)throw e}
+    await sleep(5000);
+  }
+  throw new Error("busy");
+}
+async function rawItems(k){
+  if(GNEWS_KEY){const from=new Date(Date.now()-864e5).toISOString().replace(/\.\d+Z$/,"Z");
+    const r=await fetch("https://gnews.io/api/v4/search?q="+encodeURIComponent(Q[k][lang])+"&lang="+lang+"&country=in&max=10&from="+from+"&apikey="+GNEWS_KEY);
+    const j=await r.json();if(!r.ok)throw new Error((j.errors||["GNews error"])[0]);
+    return j.articles.map(a=>({title:a.title,src:a.source.name,link:a.url,date:new Date(a.publishedAt),desc:a.description||""}))}
+  const url=feedUrl(k,24);
+  const tries=PROXIES.map(p=>fetch(p(url),tmo()).then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.text()}).then(parseRss));
+  tries.push(viaRss2json(url,k));   // runs in parallel; first good answer wins
+  try{return await Promise.any(tries)}
+  catch(e){throw new Error(lang==="te"?"వార్తల సర్వర్లు ప్రస్తుతం అందుబాటులో లేవు. కాసేపటి తర్వాత రిఫ్రెష్ నొక్కండి.":"News servers are unavailable right now. Press Refresh in a moment.")}
+}
+/* publisher feeds: these carry a real summary (description) for each story */
+const TEL=[["NTV తెలుగు","https://ntvtelugu.com/feed"],["ఆంధ్రజ్యోతి","https://www.andhrajyothy.com/rss/feed.xml"]];
+const PUB={
+ india:{te:TEL,en:[["The Hindu","https://www.thehindu.com/news/national/feeder/default.rss"],["Indian Express","https://indianexpress.com/section/india-news/feed/"]]},
+ andhra:{te:TEL,en:[["The Hindu · AP","https://www.thehindu.com/news/national/andhra-pradesh/feeder/default.rss"]]},
+ sports:{te:TEL,en:[["Hindustan Times","https://www.hindustantimes.com/rss/sports/rssfeed.xml"],["Cricbuzz","https://www.cricbuzz.com/rss/cricket-news"]]}};
+const KW={andhra:/ఆంధ్ర|అమరావతి|చంద్రబాబు|విజయవాడ|విశాఖ|తిరుపతి|పవన్|లోకేశ్|జగన్|Andhra/i,
+          sports:/క్రికెట్|క్రీడ|మ్యాచ్|ఐపీఎల్|టెస్ట్|వన్డే|టీ20|కబడ్డీ|బ్యాడ్మింటన్|ఒలింపిక్|ఫుట్‌బాల్|cricket|match|IPL/i};
+function cleanDesc(html){
+  try{const tx=new DOMParser().parseFromString(html||"","text/html").body.textContent.replace(/\s+/g," ").replace(/The post .* appeared first on .*$/i,"").trim();
+    return tx.length>420?tx.slice(0,420):tx}catch(e){return""}
+}
+function parsePub(txt,name){
+  const x=new DOMParser().parseFromString(txt,"text/xml");if(!x.querySelector("rss,channel"))throw new Error("bad feed");
+  return[...x.querySelectorAll("item")].map(it=>{const g=n=>(it.querySelector(n)||{}).textContent||"";
+    return{title:g("title").trim(),src:name,link:g("link").trim(),date:new Date(g("pubDate")),desc:cleanDesc(g("description"))}});
+}
+const feedCache={};   // shared feeds (same URL for several sections) are fetched once
+function getFeed(name,url){
+  const c=feedCache[url];if(c&&Date.now()-c.t<12e4)return c.p;
+  const p=Promise.any(PROXIES.map(px=>fetch(px(url),tmo()).then(r=>{if(!r.ok)throw 0;return r.text()}))).then(t=>parsePub(t,name)).catch(e=>{delete feedCache[url];throw e});
+  feedCache[url]={t:Date.now(),p};return p;
+}
+async function mergeItems(k){
+  let err=null;
+  const goo=rawItems(k).catch(e=>{err=e;return[]});
+  const pubs=(PUB[k][lang]||[]).map(([n,u])=>getFeed(n,u).catch(()=>[]));
+  const[g,...ps]=await Promise.all([goo,...pubs]);
+  const kw=lang==="te"?KW[k]:null,seen=new Set(),out=[];
+  [...ps.flat().filter(n=>!kw||kw.test(n.title+" "+n.desc)),...g].forEach(n=>{const key=(n.title||"").slice(0,40);if(key&&!seen.has(key)){seen.add(key);out.push(n)}});
+  if(!out.length)throw err||new Error("No stories");
+  return out;
+}
+async function fetchItems(k){   // ONE request per section: last 24 h, filtered in the browser
+  const ck="nf5:"+k+":"+lang;let old=null;
+  try{old=JSON.parse(localStorage.getItem(ck))}catch(e){}
+  const rev=c=>c.items.map(i=>Object.assign(i,{date:new Date(i.date)}));
+  if(old&&Date.now()-old.t<12e4)return rev(old);
+  try{
+    let items=(await mergeItems(k)).filter(n=>n.title&&n.link&&!isNaN(n.date)&&Date.now()-n.date<=864e5+3e5);
+    items.sort((a,b)=>b.date-a.date);items=items.slice(0,60);
+    try{localStorage.setItem(ck,JSON.stringify({t:Date.now(),items}))}catch(e){}
+    return items;
+  }catch(e){if(old&&old.items.length)return rev(old);throw e}   // show last saved news if servers fail
+}
+let tok=0,curTab="india";
+async function loadFeed(k,my){
+  const ul=$("ul-"+k),up=$("up-"+k);
+  try{const all=await fetchItems(k);let items=all.filter(n=>Date.now()-n.date<=5*36e5+3e5).slice(0,10),note=WL[lang](5);
+    if(my!==tok)return;
+    if(items.length<10){items=all.slice(0,10);note=lang==="te"?"తాజా "+items.length+" వార్తలు":"Latest "+items.length+" stories"}
+    if(!items.length)throw new Error(lang==="te"?"వార్తలు దొరకలేదు":"No stories found");
+    $("br-"+k).innerHTML=items.slice(0,5).map(n=>"<div>"+esc(n.title)+"</div>").join("");
+    ul.innerHTML=items.map(n=>'<li><div><a href="'+esc(n.link)+'" target="_blank" rel="noopener noreferrer">'+esc(n.title)+'</a><div class="src">'+esc(n.src)+(n.src?" · ":"")+ago(n.date)+'</div>'+(n.desc?'<p class="desc">'+esc(n.desc)+'</p>':"")+'</div></li>').join("");
+    up.textContent=note+" · "+ftime(items[0].date);
+  }catch(e){if(my===tok){ul.innerHTML="<li><div>"+t("fail2")+esc(e.message)+"</div></li>";$("br-"+k).innerHTML="";up.textContent=""}}
+}
+function buildNewsShell(){
+  $("newsT").textContent=t("news")+" · "+todayStr();$("refreshNews").textContent=t("refresh");
+  $("cols").innerHTML=KEYS.map(k=>'<div class="col'+(k===curTab?" on":"")+'" data-k="'+k+'" role="tabpanel"><div class="upd" id="up-'+k+'"></div><div class="brief"><b>'+NB[lang]+'</b><div id="br-'+k+'"></div></div><ul id="ul-'+k+'"><li><div>'+t("loading")+'</div></li></ul></div>').join("");
+  $("tabs").innerHTML=KEYS.map(k=>'<button role="tab" data-k="'+k+'" aria-selected="'+(k===curTab)+'">'+t(k)+'</button>').join("");
+  $("tabs").onclick=e=>{const b=e.target.closest("button");if(!b)return;curTab=b.dataset.k;
+    document.querySelectorAll("#tabs button").forEach(x=>x.setAttribute("aria-selected",x===b));
+    document.querySelectorAll(".col").forEach(c=>c.classList.toggle("on",c.dataset.k===curTab))};
+}
+async function loadNews(){
+  const my=++tok;$("newsUpd").textContent=t("updating");
+  await Promise.all(KEYS.map(k=>loadFeed(k,my)));
+  if(my===tok)$("newsUpd").textContent=t("updated")+new Date().toLocaleString(t("loc"),{weekday:"short",day:"numeric",month:"short",hour:"numeric",minute:"2-digit"})+t("every");
+}
+
+/* markets */
+const MK={te:{t:"📈 మార్కెట్ & కరెన్సీ",sensex:"సెన్సెక్స్",nifty:"నిఫ్టీ 50",usd:"డాలర్ → ₹",eur:"యూరో → ₹",btc:"బిట్‌కాయిన్",note:"మార్కెట్ మూసి ఉంటే చివరి ముగింపు ధర చూపిస్తుంది. సమాచారం కోసం మాత్రమే, పెట్టుబడి సలహా కాదు.",none:"మార్కెట్ డేటా ప్రస్తుతం అందుబాటులో లేదు."},
+ en:{t:"📈 Markets & currency",sensex:"Sensex",nifty:"Nifty 50",usd:"USD → ₹",eur:"EUR → ₹",btc:"Bitcoin",note:"Shows the last close when the market is shut. For information only, not investment advice.",none:"Market data is unavailable right now."}};
+let mkt={};
+const yahoo=async sym=>{
+  const url="https://query1.finance.yahoo.com/v8/finance/chart/"+encodeURIComponent(sym)+"?interval=1d&range=1d";
+  const txt=await Promise.any(PROXIES.map(p=>fetch(p(url),tmo()).then(r=>{if(!r.ok)throw 0;return r.text()})));
+  const m=JSON.parse(txt).chart.result[0].meta,pc=m.chartPreviousClose??m.previousClose;
+  return{v:m.regularMarketPrice,ch:pc?(m.regularMarketPrice-pc)/pc*100:null,d:0};
+};
+async function loadMarket(){
+  const jobs={sensex:yahoo("^BSESN"),nifty:yahoo("^NSEI"),
+    fx:getJ("https://open.er-api.com/v6/latest/USD"),
+    btc:getJ("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=inr&include_24hr_change=true")};
+  const r=await Promise.allSettled(Object.values(jobs)),k=Object.keys(jobs);
+  k.forEach((n,i)=>{if(r[i].status==="fulfilled")mkt[n]=r[i].value});
+  renderMarket();
+}
+function renderMarket(){
+  const L=MK[lang];$("mT").textContent=L.t;$("mNote").textContent=L.note;
+  const inr=(v,d)=>"₹"+v.toLocaleString("en-IN",{maximumFractionDigits:d}),cells=[];
+  const tile=(n,val,ch)=>'<div class="tile"><span>'+n+'</span><b>'+val+'</b>'+(ch==null?"":'<em class="'+(ch>=0?"pos":"neg")+'">'+(ch>=0?"▲ +":"▼ ")+ch.toFixed(2)+'%</em>')+'</div>';
+  if(mkt.sensex)cells.push(tile(L.sensex,Math.round(mkt.sensex.v).toLocaleString("en-IN"),mkt.sensex.ch));
+  if(mkt.nifty)cells.push(tile(L.nifty,Math.round(mkt.nifty.v).toLocaleString("en-IN"),mkt.nifty.ch));
+  if(mkt.fx&&mkt.fx.rates){const R=mkt.fx.rates;if(R.INR)cells.push(tile(L.usd,inr(R.INR,2)));if(R.INR&&R.EUR)cells.push(tile(L.eur,inr(R.INR/R.EUR,2)))}
+  if(mkt.btc&&mkt.btc.bitcoin)cells.push(tile(L.btc,inr(mkt.btc.bitcoin.inr,0),mkt.btc.bitcoin.inr_24h_change));
+  $("mGrid").innerHTML=cells.length?cells.join(""):"<div>"+L.none+"</div>";
+}
+
+/* language + unit */
+function applyLang(l){
+  lang=l;document.documentElement.lang=l;document.title=t("title");
+  $("lTe").setAttribute("aria-pressed",l==="te");$("lEn").setAttribute("aria-pressed",l==="en");
+  $("foot").textContent=t("foot");tick();
+  if(data)renderWeather();else $("status").textContent=t("find");
+  renderPlace();renderMarket();buildNewsShell();loadNews();
+}
+function setUnit(u){unit=u;$("uC").setAttribute("aria-pressed",u==="C");$("uF").setAttribute("aria-pressed",u==="F");renderWeather()}
+$("lTe").onclick=()=>applyLang("te");$("lEn").onclick=()=>applyLang("en");
+$("uC").onclick=()=>setUnit("C");$("uF").onclick=()=>setUnit("F");$("refreshNews").onclick=loadNews;
+setInterval(loadNews,3e5);setInterval(loadMarket,3e5);setInterval(tick,3e4);
+document.title=t("title");$("foot").textContent=t("foot");tick();renderMarket();loadMarket();buildNewsShell();loadNews();initWeather();
+</script>
+</body>
+</html>
